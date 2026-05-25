@@ -5,6 +5,7 @@ import '../constants/firestore_collections.dart';
 import '../screens/setup/generic_setup_screen.dart';
 import '../screens/dashboard/placeholder_screen.dart';
 import '../screens/expense_limits/expense_limits_screen.dart';
+import '../screens/monthly_dashboard/monthly_dashboard_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -125,9 +126,9 @@ class AppDrawer extends StatelessWidget {
           drawerItem(
             context,
 
-            title: 'Monthly Analysis',
+            title: 'Monthly Dashboard',
 
-            screen: const PlaceholderScreen(title: 'Monthly Analysis'),
+            screen: const MonthlyDashboardScreen(),
           ),
 
           drawerItem(

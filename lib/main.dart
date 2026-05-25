@@ -9,8 +9,8 @@ import 'screens/transactions/add_transaction_screen.dart';
 import 'constants/firestore_collections.dart';
 import 'screens/setup/generic_setup_screen.dart';
 import 'screens/setup/payment_methods_screen.dart';
-import 'dev/import_data_screen.dart';
-import 'dev/import_transactions_screen.dart';
+// import 'dev/import_data_screen.dart';
+// import 'dev/import_transactions_screen.dart';
 
 void main() async {
 
