@@ -499,7 +499,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       return categoryTile(
                         category: categoryData.key,
 
-                        amount: categoryData.value.toDouble(),
+                        amount: categoryData.value.toDouble(), totalExpense: data['expense'],
                       );
                     }),
                 ],
@@ -731,44 +731,387 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget categoryTile({required String category, required double amount}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+  Color getCategoryColor(String category) {
+    switch (category) {
+      case 'Food':
+        return Colors.orange;
 
-      padding: const EdgeInsets.all(18),
+      case 'Transport':
+        return Colors.indigo;
 
-      decoration: BoxDecoration(
-        color: Colors.white,
+      case 'Health':
+        return Colors.red;
 
-        borderRadius: BorderRadius.circular(22),
-      ),
+      case 'Household':
+        return Colors.brown;
 
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Text(category),
+      case 'Bills':
+        return Colors.blueGrey;
 
-              const Spacer(),
+      case 'Lifestyle':
+        return Colors.purple;
 
-              Text('₹${amount.toStringAsFixed(0)}'),
-            ],
+      case 'Entertainment':
+        return Colors.pink;
+
+      case 'Subscriptions':
+        return Colors.deepPurple;
+
+      case 'Savings':
+        return Colors.green;
+
+      case 'Charity':
+        return Colors.teal;
+
+      case 'Gifts':
+        return Colors.amber;
+
+      case 'Trips':
+        return Colors.cyan;
+
+      case 'Loans':
+        return Colors.deepOrange;
+
+      case 'Insurance':
+        return Colors.blue;
+
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String getCategoryEmoji(String category) {
+    switch (category) {
+      case 'Food':
+        return '🍔';
+
+      case 'Transport':
+        return '🚕';
+
+      case 'Health':
+        return '💊';
+
+      case 'Household':
+        return '🏠';
+
+      case 'Bills':
+        return '📄';
+
+      case 'Lifestyle':
+        return '🛍';
+
+      case 'Entertainment':
+        return '🎬';
+
+      case 'Subscriptions':
+        return '📺';
+
+      case 'Savings':
+        return '📈';
+
+      case 'Charity':
+        return '🙏';
+
+      case 'Gifts':
+        return '🎁';
+
+      case 'Trips':
+        return '✈️';
+
+      case 'Loans':
+        return '💀';
+
+      case 'Insurance':
+        return '🛡';
+
+      default:
+        return '📊';
+    }
+  }
+
+  Widget categoryTile({
+
+  required String category,
+
+  required double amount,
+
+  required double totalExpense,
+}) {
+
+  final color =
+      getCategoryColor(
+    category,
+  );
+
+  final icon =
+      getCategoryEmoji(
+    category,
+  );
+
+  final double progress =
+
+      totalExpense <= 0
+
+          ? 0
+
+          : (amount /
+                  totalExpense)
+              .clamp(0, 1);
+
+  return Container(
+
+    margin:
+        const EdgeInsets.only(
+      bottom: 16,
+    ),
+
+    padding:
+        const EdgeInsets.all(
+      18,
+    ),
+
+    decoration: BoxDecoration(
+
+      gradient: LinearGradient(
+
+        begin:
+            Alignment.topLeft,
+
+        end:
+            Alignment.bottomRight,
+
+        colors: [
+
+          color.withOpacity(
+            0.10,
           ),
 
-          const SizedBox(height: 12),
-
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-
-            child: LinearProgressIndicator(
-              value: amount <= 0 ? 0 : (amount / 50000).clamp(0, 1),
-              minHeight: 8,
-            ),
-          ),
+          Colors.white,
         ],
       ),
-    );
-  }
+
+      borderRadius:
+          BorderRadius.circular(
+        24,
+      ),
+
+      border: Border.all(
+
+        color:
+            color.withOpacity(
+          0.08,
+        ),
+      ),
+
+      boxShadow: [
+
+        BoxShadow(
+
+          color:
+              color.withOpacity(
+            0.08,
+          ),
+
+          blurRadius: 16,
+
+          offset:
+              const Offset(
+            0,
+            8,
+          ),
+        ),
+      ],
+    ),
+
+    child: Column(
+
+      children: [
+
+        Row(
+
+          children: [
+
+            // =====================
+            // ICON
+            // =====================
+
+            Container(
+
+              height: 52,
+
+              width: 52,
+
+              decoration: BoxDecoration(
+
+                color:
+                    color.withOpacity(
+                  0.14,
+                ),
+
+                borderRadius:
+                    BorderRadius.circular(
+                  18,
+                ),
+              ),
+
+              child: Center(
+
+                child: Text(
+
+                  icon,
+
+                  style:
+                      const TextStyle(
+                    fontSize: 24,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(
+              width: 14,
+            ),
+
+            // =====================
+            // CATEGORY
+            // =====================
+
+            Expanded(
+
+              child: Column(
+
+                crossAxisAlignment:
+                    CrossAxisAlignment
+                        .start,
+
+                children: [
+
+                  Text(
+
+                    category,
+
+                    style:
+                        AppTextStyles
+                            .bodyLarge
+                            .copyWith(
+
+                      fontWeight:
+                          FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(
+                    height: 4,
+                  ),
+
+                  Text(
+
+                    '${(progress * 100).toStringAsFixed(0)}% of total expenses',
+
+                    style:
+                        AppTextStyles
+                            .bodySmall
+                            .copyWith(
+
+                      color:
+                          Colors
+                              .grey
+                              .shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // =====================
+            // AMOUNT
+            // =====================
+
+            Column(
+
+              crossAxisAlignment:
+                  CrossAxisAlignment
+                      .end,
+
+              children: [
+
+                Text(
+
+                  '₹${amount.toStringAsFixed(0)}',
+
+                  style:
+                      AppTextStyles
+                          .heading3
+                          .copyWith(
+
+                    color: color,
+                  ),
+                ),
+
+                const SizedBox(
+                  height: 4,
+                ),
+
+                Text(
+
+                  '${(progress * 100).toStringAsFixed(0)}%',
+
+                  style:
+                      AppTextStyles
+                          .bodySmall
+                          .copyWith(
+
+                    color:
+                        color,
+
+                    fontWeight:
+                        FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+
+        const SizedBox(
+          height: 18,
+        ),
+
+        // =====================
+        // PROGRESS BAR
+        // =====================
+
+        ClipRRect(
+
+          borderRadius:
+              BorderRadius.circular(
+            20,
+          ),
+
+          child:
+              LinearProgressIndicator(
+
+            value: progress,
+
+            minHeight: 10,
+
+            backgroundColor:
+                color.withOpacity(
+              0.10,
+            ),
+
+            valueColor:
+                AlwaysStoppedAnimation(
+              color,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
 }
 
 class SavingsMeter extends StatelessWidget {

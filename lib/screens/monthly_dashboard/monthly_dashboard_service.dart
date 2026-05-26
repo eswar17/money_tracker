@@ -42,6 +42,8 @@ class MonthlyDashboardService {
 
     final Map<String, double> categoryData = {};
 
+    final Map<String, double> detailCategories = {};
+
     final Map<String, double> expenseCategories = {};
 
     // =========================
@@ -168,9 +170,15 @@ class MonthlyDashboardService {
       // =====================
 
       if (type == 'Expense') {
+        final String detail = data['detail'] ?? '';
+
         expenseCategories.putIfAbsent(category, () => 0);
 
         expenseCategories[category] = expenseCategories[category]! + amount;
+
+        detailCategories.putIfAbsent(detail, () => 0);
+
+        detailCategories[detail] = detailCategories[detail]! + amount;
       }
 
       // =====================
@@ -224,6 +232,8 @@ class MonthlyDashboardService {
     final financialMood = MonthlyInsightHelper.getFinancialMood(
       expenseCategories,
     );
+
+    final funInsight = MonthlyInsightHelper.getFunInsight(expenseCategories);
 
     final spendingStreak = MonthlyInsightHelper.getSpendingStreak(
       expenseDays.toList(),
@@ -307,8 +317,9 @@ class MonthlyDashboardService {
 
       'warnings': warnings,
 
-      // LEGACY
-      'funInsight': financialMood,
+      'funInsight': MonthlyInsightHelper.getFunInsight(detailCategories),
+
+      'isHealthy': savings >= 0,
     };
   }
 }

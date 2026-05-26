@@ -5,14 +5,26 @@ import '../../../theme/app_text_styles.dart';
 class FunInsightCard extends StatelessWidget {
   final String insight;
 
-  const FunInsightCard({super.key, required this.insight});
+  final bool isHealthy;
+
+  const FunInsightCard({
+    super.key,
+
+    required this.insight,
+
+    required this.isHealthy,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final bool danger = insight.contains('💀') || insight.contains('😭');
+    final bool danger = !isHealthy;
+
+    final Color primaryColor = danger
+        ? const Color(0xFFFF7043)
+        : const Color(0xFF00C853);
 
     return Container(
-      padding: const EdgeInsets.all(17),
+      padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -21,19 +33,21 @@ class FunInsightCard extends StatelessWidget {
           end: Alignment.bottomRight,
 
           colors: danger
-              ? [const Color(0xFFFFE0E0), const Color(0xFFFFF3E0)]
-              : [const Color(0xFFE3F2FD), const Color(0xFFE8F5E9)],
+              ? [const Color(0xFFFFF3F0), const Color(0xFFFFF8F3)]
+              : [const Color(0xFFEAFBF1), const Color(0xFFF3FFF7)],
         ),
 
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
+
+        border: Border.all(color: primaryColor.withOpacity(0.10)),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withOpacity(0.03),
 
-            blurRadius: 18,
+            blurRadius: 12,
 
-            offset: const Offset(0, 8),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -42,66 +56,90 @@ class FunInsightCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
+          // =====================
+          // EMOJI
+          // =====================
           Container(
-            height: 60,
+            height: 50,
 
-            width: 60,
+            width: 50,
 
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withOpacity(0.85),
 
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(16),
             ),
 
             child: Center(
-              child: Text(
-                danger ? '😭' : '😎',
-
-                style: const TextStyle(fontSize: 32),
-              ),
+              child: Text(getEmoji(), style: const TextStyle(fontSize: 26)),
             ),
           ),
 
-          const SizedBox(width: 5),
+          const SizedBox(width: 14),
 
+          // =====================
+          // CONTENT
+          // =====================
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
 
-              children: [
-                Text('Fun Insight', style: AppTextStyles.heading3),
+              mainAxisSize: MainAxisSize.min,
 
-                const SizedBox(height: 8),
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Fun Insight',
+
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+
+                        vertical: 4,
+                      ),
+
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.75),
+
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+
+                      child: Text(
+                        getTag(),
+
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: primaryColor,
+
+                          fontWeight: FontWeight.bold,
+
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
 
                 Text(
                   insight,
 
-                  style: AppTextStyles.bodyLarge.copyWith(height: 1.5),
-                ),
+                  maxLines: 3,
 
-                const SizedBox(height: 8),
+                  overflow: TextOverflow.ellipsis,
 
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    height: 1.4,
 
-                    vertical: 8,
-                  ),
-
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.65),
-
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-
-                  child: Text(
-                    danger
-                        ? '⚠️ Spending needs attention'
-                        : '📈 Financial vibe looks healthy',
-
-                    style: AppTextStyles.bodySmall.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -110,5 +148,80 @@ class FunInsightCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // =====================
+  // DYNAMIC TAG
+  // =====================
+
+  String getTag() {
+    if (insight.contains('Swiggy')) {
+      return 'FOOD ARC';
+    }
+
+    if (insight.contains('Zara')) {
+      return 'LIFESTYLE';
+    }
+
+    if (insight.contains('OTT')) {
+      return 'ENTERTAINMENT';
+    }
+
+    if (insight.contains('UPI')) {
+      return 'SPENDING CHAOS';
+    }
+
+    if (insight.contains('Vacation')) {
+      return 'TRAVEL MODE';
+    }
+
+    if (insight.contains('Mirror')) {
+      return 'SELF CARE';
+    }
+
+    if (dangerTag()) {
+      return 'OVERSPENDING';
+    }
+
+    return 'MONTHLY VIBE';
+  }
+
+  // =====================
+  // DYNAMIC EMOJI
+  // =====================
+
+  String getEmoji() {
+    if (insight.contains('Swiggy')) {
+      return '🍔';
+    }
+
+    if (insight.contains('Zara')) {
+      return '🛍';
+    }
+
+    if (insight.contains('OTT')) {
+      return '📺';
+    }
+
+    if (insight.contains('UPI')) {
+      return '💸';
+    }
+
+    if (insight.contains('Vacation')) {
+      return '✈️';
+    }
+
+    if (insight.contains('Mirror')) {
+      return '🪞';
+    }
+
+    return isHealthy ? '😎' : '😭';
+  }
+
+  bool dangerTag() {
+    return insight.contains('Disaster') ||
+        insight.contains('Destroyed') ||
+        insight.contains('Poor') ||
+        insight.contains('Collapsed');
   }
 }

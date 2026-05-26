@@ -98,7 +98,11 @@ class _MonthlyDashboardScreenState extends State<MonthlyDashboardScreen> {
 
               const SizedBox(height: 13),
 
-              FunInsightCard(insight: data['funInsight']),
+              FunInsightCard(
+                insight: data['funInsight'],
+
+                isHealthy: data['isHealthy'],
+              ),
 
               const SizedBox(height: 13),
 

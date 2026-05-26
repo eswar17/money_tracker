@@ -15,9 +15,6 @@ class MonthlyInsightsSection extends StatelessWidget {
 
     return Column(
       children: [
-        // =====================
-        // QUICK INSIGHTS
-        // =====================
         GridView.count(
           crossAxisCount: 2,
 
@@ -25,11 +22,11 @@ class MonthlyInsightsSection extends StatelessWidget {
 
           physics: const NeverScrollableScrollPhysics(),
 
-          mainAxisSpacing: 3,
+          mainAxisSpacing: 14,
 
-          crossAxisSpacing: 15,
+          crossAxisSpacing: 14,
 
-          childAspectRatio: 2.5,
+          childAspectRatio: 1.15,
 
           children: [
             compactInsightTile(
@@ -47,25 +44,6 @@ class MonthlyInsightsSection extends StatelessWidget {
 
               value: '${data['spendingStreak']} Days',
             ),
-          ],
-        ),
-
-        const SizedBox(height: 10),
-
-        GridView.count(
-          crossAxisCount: 2,
-
-          shrinkWrap: true,
-
-          physics: const NeverScrollableScrollPhysics(),
-
-          mainAxisSpacing: 3,
-
-          crossAxisSpacing: 15,
-
-          childAspectRatio: 2,
-
-          children: [
 
             compactInsightTile(
               emoji: '💸',
@@ -73,7 +51,7 @@ class MonthlyInsightsSection extends StatelessWidget {
               title: 'Most Expensive Day',
 
               value:
-                  '₹${(data['mostExpensiveDay']['amount'] as double).toStringAsFixed(0)} on ${data['mostExpensiveDay']['day']}',
+                  '₹${(data['mostExpensiveDay']['amount'] as double).toStringAsFixed(0)}\n${data['mostExpensiveDay']['day']}',
             ),
 
             compactInsightTile(
@@ -83,25 +61,7 @@ class MonthlyInsightsSection extends StatelessWidget {
 
               value: data['monthComparison'],
             ),
-          ],
-        ),
-        
-        const SizedBox(height: 10),
 
-        GridView.count(
-          crossAxisCount: 2,
-
-          shrinkWrap: true,
-
-          physics: const NeverScrollableScrollPhysics(),
-
-          mainAxisSpacing: 1,
-
-          crossAxisSpacing: 1,
-
-          childAspectRatio: 2.2,
-
-          children: [
             compactInsightTile(
               emoji: '😎',
 
@@ -117,25 +77,7 @@ class MonthlyInsightsSection extends StatelessWidget {
 
               value: data['creditCardPressure'],
             ),
-          ],
-        ),
-        
-        const SizedBox(height: 10),
 
-        GridView.count(
-          crossAxisCount: 2,
-
-          shrinkWrap: true,
-
-          physics: const NeverScrollableScrollPhysics(),
-
-          mainAxisSpacing: 1,
-
-          crossAxisSpacing: 1,
-
-          childAspectRatio: 2.2,
-
-          children: [
             compactInsightTile(
               emoji: '🏆',
 
@@ -143,6 +85,7 @@ class MonthlyInsightsSection extends StatelessWidget {
 
               value: data['savingsTitle'],
             ),
+
             compactInsightTile(
               emoji: '🍔',
 
@@ -153,25 +96,8 @@ class MonthlyInsightsSection extends StatelessWidget {
           ],
         ),
 
-        // const SizedBox(height: 5),
-
-        // // =====================
-        // // CATEGORY DOMINATION
-        // // =====================
-        // fullWidthCard(
-        //   emoji: '🍔',
-
-        //   title: 'Category Domination',
-
-        //   value: data['categoryDomination'],
-        // ),
-
-        const SizedBox(height: 10),
-        // =====================
-        // ACHIEVEMENTS
-        // =====================
         if (achievements.isNotEmpty) ...[
-          const SizedBox(height: 5),
+          const SizedBox(height: 18),
 
           sectionCard(
             emoji: '🏅',
@@ -184,11 +110,8 @@ class MonthlyInsightsSection extends StatelessWidget {
           ),
         ],
 
-        // =====================
-        // WARNINGS
-        // =====================
         if (warnings.isNotEmpty) ...[
-          const SizedBox(height: 5),
+          const SizedBox(height: 18),
 
           sectionCard(
             emoji: '⚠️',
@@ -386,7 +309,7 @@ class MonthlyInsightsSection extends StatelessWidget {
     Color? color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(6),
+      padding: const EdgeInsets.all(14),
 
       decoration: BoxDecoration(
         color: color ?? Colors.white,
@@ -405,7 +328,7 @@ class MonthlyInsightsSection extends StatelessWidget {
       ),
 
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
 
         children: [
           Text(
