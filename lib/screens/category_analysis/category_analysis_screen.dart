@@ -418,7 +418,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                           subtitle1:
                               ((data?['nextTopCategories'] as List?) ?? [])
                                   .isNotEmpty
-                              ? (data?['nextTopCategories'] as List).first
+                              ? (data?['nextTopCategories'] as List).first + ' •'
                               : '-',
                           subtitle2:
                               ((data?['nextTopCategories'] as List?) ?? [])
@@ -1519,8 +1519,8 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                       title,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w300,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -1528,8 +1528,8 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                       amount,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w300,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: -1,
                       ),
                     ),
@@ -1538,65 +1538,65 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                       '$percentage of total',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.68),
-                        fontSize: 7,
+                        fontSize: 10,
                       ),
                     ),
                   ],
                 ),
               ),
               // TREND
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: positive
-                          ? Colors.red.withOpacity(0.14)
-                          : Colors.green.withOpacity(0.14),
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                    // child: Row(
-                    //   children: [
-                    //     Icon(
-                    //       positive
-                    //           ? Icons.arrow_upward_rounded
-                    //           : Icons.arrow_downward_rounded,
-                    //       size: 7,
-                    //       color: positive
-                    //           ? Colors.redAccent
-                    //           : Colors.greenAccent,
-                    //     ),
-                    //     const SizedBox(width: 2),
-                    //     Text(
-                    //       trend,
-                    //       style: TextStyle(
-                    //         color: positive
-                    //             ? Colors.redAccent
-                    //             : Colors.greenAccent,
-                    //         fontSize: 7,
-                    //         fontWeight: FontWeight.w300,
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                  ),
-                  const SizedBox(height: 4),
-                  // Text(
-                  //   'vs 1 Dec – 28 Feb',
-                  //   style: TextStyle(
-                  //     color: Colors.white.withOpacity(0.58),
-                  //     fontSize: 5,
-                  //   ),
-                  // ),
-                ],
-              ),
+              // Column(
+              //   crossAxisAlignment: CrossAxisAlignment.end,
+              //   children: [
+              //     Container(
+              //       // padding: const EdgeInsets.symmetric(
+              //       //   horizontal: 6,
+              //       //   vertical: 4,
+              //       // ),
+              //       // decoration: BoxDecoration(
+              //       //   color: positive
+              //       //       ? Colors.red.withOpacity(0.14)
+              //       //       : Colors.green.withOpacity(0.14),
+              //       //   borderRadius: BorderRadius.circular(11),
+              //       // ),
+              //       // child: Row(
+              //       //   children: [
+              //       //     Icon(
+              //       //       positive
+              //       //           ? Icons.arrow_upward_rounded
+              //       //           : Icons.arrow_downward_rounded,
+              //       //       size: 7,
+              //       //       color: positive
+              //       //           ? Colors.redAccent
+              //       //           : Colors.greenAccent,
+              //       //     ),
+              //       //     const SizedBox(width: 2),
+              //       //     Text(
+              //       //       trend,
+              //       //       style: TextStyle(
+              //       //         color: positive
+              //       //             ? Colors.redAccent
+              //       //             : Colors.greenAccent,
+              //       //         fontSize: 7,
+              //       //         fontWeight: FontWeight.w300,
+              //       //       ),
+              //       //     ),
+              //       //   ],
+              //       // ),
+              //     ),
+              //     const SizedBox(height: 4),
+              //     // Text(
+              //     //   'vs 1 Dec – 28 Feb',
+              //     //   style: TextStyle(
+              //     //     color: Colors.white.withOpacity(0.58),
+              //     //     fontSize: 5,
+              //     //   ),
+              //     // ),
+              //   ],
+              // ),
             ],
           ),
-          const SizedBox(height: 9),
+          const SizedBox(height: 2),
           // DIVIDER
           Container(
             height: 1,
@@ -1610,7 +1610,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 9),
+          const SizedBox(height: 3),
           // METRICS
           Row(
             children: [
@@ -1661,15 +1661,15 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
       children: [
         Text(
           title,
-          style: TextStyle(color: Colors.white.withOpacity(0.58), fontSize: 5),
+          style: TextStyle(color: Colors.white.withOpacity(0.58), fontSize: 9),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           value,
           style: TextStyle(
             color: color,
-            fontSize: 9,
-            fontWeight: FontWeight.w300,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
           ),
         ),
         if (subtitle.isNotEmpty) ...[
@@ -1678,7 +1678,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
             subtitle,
             style: TextStyle(
               color: Colors.white.withOpacity(0.50),
-              fontSize: 5,
+              fontSize: 8,
             ),
           ),
         ],
