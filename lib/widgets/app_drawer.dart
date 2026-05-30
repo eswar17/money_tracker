@@ -6,6 +6,7 @@ import '../screens/setup/generic_setup_screen.dart';
 import '../screens/dashboard/placeholder_screen.dart';
 import '../screens/expense_limits/expense_limits_screen.dart';
 import '../screens/monthly_dashboard/monthly_dashboard_screen.dart';
+import '../screens/category_analysis/category_analysis_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -134,9 +135,9 @@ class AppDrawer extends StatelessWidget {
           drawerItem(
             context,
 
-            title: 'Budgets',
+            title: 'Category Analysis',
 
-            screen: const PlaceholderScreen(title: 'Budgets'),
+            screen: const CategoryAnalysisScreen(),
           ),
 
           drawerItem(
