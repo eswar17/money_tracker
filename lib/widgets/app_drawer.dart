@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 
-import '../constants/firestore_collections.dart';
+import '../constants/app_strings.dart';
 
-import '../screens/setup/generic_setup_screen.dart';
+import '../widgets/app_navigation_tile.dart';
+
+import '../screens/setup/setup_screen.dart';
 import '../screens/dashboard/placeholder_screen.dart';
 import '../screens/expense_limits/expense_limits_screen.dart';
 import '../screens/monthly_dashboard/monthly_dashboard_screen.dart';
 import '../screens/category_analysis/category_analysis_screen.dart';
+import '../screens/auth/workspace_setup_screen.dart';
+
+import '../core/services/auth_service.dart';
+import '../services/auth/workspace_service.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -16,17 +22,13 @@ class AppDrawer extends StatelessWidget {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
-
         children: [
           const DrawerHeader(
             decoration: BoxDecoration(color: Colors.green),
-
             child: Align(
               alignment: Alignment.bottomLeft,
-
               child: Text(
-                'Money Tracker',
-
+                AppStrings.appName,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -36,147 +38,101 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
 
-          drawerItem(
-            context,
+          AppNavigationTile(
+            title: AppStrings.setup,
+            onTap: () {
+              Navigator.pop(context);
 
-            title: 'Expense Categories',
-
-            screen: GenericSetupScreen(
-              title: 'Expense Categories',
-
-              collection: FirestoreCollections.expenseCategories,
-
-              hasDetails: true,
-            ),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SetupScreen()),
+              );
+            },
           ),
 
-          drawerItem(
-            context,
+          AppNavigationTile(
+            title: AppStrings.expenseLimits,
+            onTap: () {
+              Navigator.pop(context);
 
-            title: 'Income Categories',
-
-            screen: GenericSetupScreen(
-              title: 'Income Categories',
-
-              collection: FirestoreCollections.incomeCategories,
-
-              hasDetails: true,
-            ),
-          ),
-
-          drawerItem(
-            context,
-
-            title: 'Transfer Categories',
-
-            screen: GenericSetupScreen(
-              title: 'Transfer Categories',
-
-              collection: FirestoreCollections.transferCategories,
-
-              hasDetails: true,
-            ),
-          ),
-
-          drawerItem(
-            context,
-
-            title: 'Payment Methods',
-
-            screen: GenericSetupScreen(
-              title: 'Payment Methods',
-
-              collection: FirestoreCollections.paymentMethods,
-            ),
-          ),
-
-          drawerItem(
-            context,
-
-            title: 'Persons',
-
-            screen: GenericSetupScreen(
-              title: 'Persons',
-
-              collection: FirestoreCollections.persons,
-            ),
-          ),
-
-          drawerItem(
-            context,
-
-            title: 'Tags',
-
-            screen: GenericSetupScreen(
-              title: 'Tags',
-
-              collection: FirestoreCollections.tags,
-            ),
-          ),
-
-          drawerItem(
-            context,
-
-            title: 'Expense Limits',
-
-            screen: const ExpenseLimitsScreen(),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ExpenseLimitsScreen()),
+              );
+            },
           ),
 
           const Divider(),
 
-          drawerItem(
-            context,
+          AppNavigationTile(
+            title: AppStrings.monthlyDashboard,
+            onTap: () {
+              Navigator.pop(context);
 
-            title: 'Monthly Dashboard',
-
-            screen: const MonthlyDashboardScreen(),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const MonthlyDashboardScreen(),
+                ),
+              );
+            },
           ),
 
-          drawerItem(
-            context,
+          AppNavigationTile(
+            title: AppStrings.categoryAnalysis,
+            onTap: () {
+              Navigator.pop(context);
 
-            title: 'Category Analysis',
-
-            screen: const CategoryAnalysisScreen(),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const CategoryAnalysisScreen(),
+                ),
+              );
+            },
           ),
 
-          drawerItem(
-            context,
+          AppNavigationTile(
+            title: AppStrings.goals,
+            onTap: () {
+              Navigator.pop(context);
 
-            title: 'Goals',
-
-            screen: const PlaceholderScreen(title: 'Goals'),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      const PlaceholderScreen(title: AppStrings.goals),
+                ),
+              );
+            },
           ),
 
-          drawerItem(
-            context,
+          ListTile(
+            title: const Text(AppStrings.logout),
+            onTap: () async {
+              await AuthService.instance.signOut();
+            },
+          ),
 
-            title: 'Backup & Export',
+          ListTile(
+            leading: const Icon(Icons.exit_to_app_rounded),
+            title: const Text(AppStrings.exitWorkspace),
+            onTap: () async {
+              await WorkspaceService.leaveWorkspace();
 
-            screen: const PlaceholderScreen(title: 'Backup & Export'),
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const WorkspaceSetupScreen(),
+                  ),
+                  (route) => false,
+                );
+              }
+            },
           ),
         ],
       ),
-    );
-  }
-
-  Widget drawerItem(
-    BuildContext context, {
-
-    required String title,
-
-    required Widget screen,
-  }) {
-    return ListTile(
-      title: Text(title),
-
-      trailing: const Icon(Icons.arrow_forward_ios),
-
-      onTap: () {
-        Navigator.pop(context);
-
-        Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
-      },
     );
   }
 }

@@ -3,95 +3,71 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class AppTextStyles {
+  static const TextStyle heading2 = TextStyle(
+    fontSize: 22,
 
-  static const TextStyle heading2 =
-    TextStyle(
+    fontWeight: FontWeight.bold,
 
-  fontSize: 22,
+    color: Colors.black,
+  );
 
-  fontWeight: FontWeight.bold,
+  static const TextStyle heading3 = TextStyle(
+    fontSize: 18,
 
-  color: Colors.black,
-);
+    fontWeight: FontWeight.w700,
 
-static const TextStyle heading3 =
-    TextStyle(
+    color: Colors.black,
+  );
 
-  fontSize: 18,
+  static const TextStyle bodyLarge = TextStyle(
+    fontSize: 16,
 
-  fontWeight: FontWeight.w700,
+    color: Colors.black87,
+  );
 
-  color: Colors.black,
-);
+  static const TextStyle bodyMedium = TextStyle(
+    fontSize: 14,
 
-static const TextStyle bodyLarge =
-    TextStyle(
+    color: Colors.black87,
+  );
 
-  fontSize: 16,
+  static const TextStyle bodySmall = TextStyle(
+    fontSize: 12,
 
-  color: Colors.black87,
-);
+    color: Colors.black54,
+  );
 
-static const TextStyle bodyMedium =
-    TextStyle(
+  static const TextStyle heading1 = TextStyle(
+    fontSize: 32,
 
-  fontSize: 14,
+    fontWeight: FontWeight.bold,
 
-  color: Colors.black87,
-);
+    color: Colors.black,
+  );
 
-static const TextStyle bodySmall =
-    TextStyle(
-
-  fontSize: 12,
-
-  color: Colors.black54,
-);
-
-static const TextStyle heading1 =
-    TextStyle(
-
-  fontSize: 32,
-
-  fontWeight: FontWeight.bold,
-
-  color: Colors.black,
-);
-
-  static const TextStyle heading =
-      TextStyle(
-
+  static const TextStyle heading = TextStyle(
     fontSize: 26,
 
     fontWeight: FontWeight.bold,
 
-    color:
-        AppColors.textPrimary,
+    color: AppColors.textPrimary,
   );
 
-  static const TextStyle title =
-      TextStyle(
-
+  static const TextStyle title = TextStyle(
     fontSize: 18,
 
     fontWeight: FontWeight.w600,
 
-    color:
-        AppColors.textPrimary,
+    color: AppColors.textPrimary,
   );
 
-  static const TextStyle body =
-      TextStyle(
-
+  static const TextStyle body = TextStyle(
     fontSize: 15,
 
-    color:
-        AppColors.textSecondary,
+    color: AppColors.textSecondary,
   );
 
-  static const TextStyle button =
-      TextStyle(
-
+  static const TextStyle button = TextStyle(
     fontSize: 16,
 
     fontWeight: FontWeight.w600,

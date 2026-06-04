@@ -1,5 +1,4 @@
 class FilterModel {
-
   final String? type;
 
   final String? categoryId;
@@ -17,7 +16,6 @@ class FilterModel {
   final String? searchText;
 
   const FilterModel({
-
     this.type,
 
     this.categoryId,
@@ -36,107 +34,67 @@ class FilterModel {
   });
 
   bool get hasFilters {
-
     return type != null ||
-
         categoryId != null ||
-
         paymentMethodId != null ||
-
         personId != null ||
-
         tagId != null ||
-
         startDate != null ||
-
         endDate != null ||
-
         searchText != null;
   }
 
- FilterModel copyWith({
+  FilterModel copyWith({
+    String? type,
 
-  String? type,
+    String? categoryId,
 
-  String? categoryId,
+    String? paymentMethodId,
 
-  String? paymentMethodId,
+    String? personId,
 
-  String? personId,
+    String? tagId,
 
-  String? tagId,
+    DateTime? startDate,
 
-  DateTime? startDate,
+    DateTime? endDate,
 
-  DateTime? endDate,
+    String? searchText,
 
-  String? searchText,
+    bool clearType = false,
 
-  bool clearType = false,
+    bool clearCategory = false,
 
-  bool clearCategory = false,
+    bool clearPaymentMethod = false,
 
-  bool clearPaymentMethod = false,
+    bool clearPerson = false,
 
-  bool clearPerson = false,
+    bool clearTag = false,
 
-  bool clearTag = false,
+    bool clearStartDate = false,
 
-  bool clearStartDate = false,
+    bool clearEndDate = false,
 
-  bool clearEndDate = false,
+    bool clearSearch = false,
+  }) {
+    return FilterModel(
+      type: clearType ? null : type ?? this.type,
 
-  bool clearSearch = false,
-}) {
+      categoryId: clearCategory ? null : categoryId ?? this.categoryId,
 
-  return FilterModel(
+      paymentMethodId: clearPaymentMethod
+          ? null
+          : paymentMethodId ?? this.paymentMethodId,
 
-    type:
-        clearType
-            ? null
-            : type ?? this.type,
+      personId: clearPerson ? null : personId ?? this.personId,
 
-    categoryId:
-        clearCategory
-            ? null
-            : categoryId ??
-                this.categoryId,
+      tagId: clearTag ? null : tagId ?? this.tagId,
 
-    paymentMethodId:
-        clearPaymentMethod
-            ? null
-            : paymentMethodId ??
-                this.paymentMethodId,
+      startDate: clearStartDate ? null : startDate ?? this.startDate,
 
-    personId:
-        clearPerson
-            ? null
-            : personId ??
-                this.personId,
+      endDate: clearEndDate ? null : endDate ?? this.endDate,
 
-    tagId:
-        clearTag
-            ? null
-            : tagId ?? this.tagId,
-
-    startDate:
-        clearStartDate
-            ? null
-            : startDate ??
-                this.startDate,
-
-    endDate:
-        clearEndDate
-            ? null
-            : endDate ??
-                this.endDate,
-
-    searchText:
-        clearSearch
-            ? null
-            : searchText ??
-                this.searchText,
-  );
-}
-
+      searchText: clearSearch ? null : searchText ?? this.searchText,
+    );
+  }
 }

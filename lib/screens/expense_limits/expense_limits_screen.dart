@@ -1,42 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:money_tracker/services/workspace/workspace_context.dart';
 
-class ExpenseLimitsScreen
-    extends StatefulWidget {
-
-  const ExpenseLimitsScreen({
-    super.key,
-  });
+class ExpenseLimitsScreen extends StatefulWidget {
+  const ExpenseLimitsScreen({super.key});
 
   @override
-  State<ExpenseLimitsScreen>
-      createState() =>
-          _ExpenseLimitsScreenState();
+  State<ExpenseLimitsScreen> createState() => _ExpenseLimitsScreenState();
 }
 
-class _ExpenseLimitsScreenState
-    extends State<
-        ExpenseLimitsScreen> {
+class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  final FirebaseFirestore
-      firestore =
-      FirebaseFirestore.instance;
-
-  Future<void> openLimitSheet({
-
-    DocumentSnapshot?
-        document,
-  }) async {
-
-    final amountController =
-        TextEditingController(
-
-      text: document != null
-
-          ? document['limit']
-              .toString()
-
-          : '',
+  Future<void> openLimitSheet({DocumentSnapshot? document}) async {
+    final amountController = TextEditingController(
+      text: document != null ? document['limit'].toString() : '',
     );
 
     String? selectedCategory;
@@ -48,444 +26,247 @@ class _ExpenseLimitsScreenState
     String? selectedPersonId;
 
     if (document != null) {
+      selectedCategory = document['category'];
 
-      selectedCategory =
-          document['category'];
+      selectedCategoryId = document['categoryId'];
 
-      selectedCategoryId =
-          document['categoryId'];
+      selectedPerson = document['person'];
 
-      selectedPerson =
-          document['person'];
-
-      selectedPersonId =
-          document['personId'];
+      selectedPersonId = document['personId'];
     }
 
-    final expenseCategories =
-        await firestore
-            .collection(
-              'expense_categories',
-            )
-            .get();
+    final expenseCategories = await firestore
+        .collection('expense_categories')
+        .where('workspaceId', isEqualTo: WorkspaceContext.currentWorkspaceId)
+        .get();
 
-    final persons =
-        await firestore
-            .collection(
-              'persons',
-            )
-            .get();
+    final persons = await firestore
+        .collection('persons')
+        .where('workspaceId', isEqualTo: WorkspaceContext.currentWorkspaceId)
+        .get();
 
     if (!mounted) {
-
       return;
     }
 
     showModalBottomSheet(
-
       context: context,
 
       isScrollControlled: true,
 
-      backgroundColor:
-          Colors.transparent,
+      backgroundColor: Colors.transparent,
 
       builder: (context) {
-
         return StatefulBuilder(
-
-          builder:
-              (context, setSheetState) {
-
+          builder: (context, setSheetState) {
             return Container(
-
-              padding:
-                  EdgeInsets.only(
-
+              padding: EdgeInsets.only(
                 left: 20,
 
                 right: 20,
 
                 top: 24,
 
-                bottom:
-                    MediaQuery.of(
-                          context,
-                        )
-                        .viewInsets
-                        .bottom +
-                        24,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
               ),
 
-              decoration:
-                  const BoxDecoration(
-
+              decoration: const BoxDecoration(
                 color: Colors.white,
 
-                borderRadius:
-                    BorderRadius.vertical(
-
-                  top:
-                      Radius.circular(
-                    28,
-                  ),
-                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
               ),
 
               child: Column(
+                mainAxisSize: MainAxisSize.min,
 
-                mainAxisSize:
-                    MainAxisSize.min,
-
-                crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
-
                   Text(
-
                     document == null
-
                         ? 'Add Expense Limit'
-
                         : 'Edit Expense Limit',
 
-                    style:
-                        const TextStyle(
-
+                    style: const TextStyle(
                       fontSize: 20,
 
-                      fontWeight:
-                          FontWeight.bold,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 24,
-                  ),
+                  const SizedBox(height: 24),
 
                   // =====================
                   // CATEGORY
                   // =====================
+                  DropdownButtonFormField<String>(
+                    value: selectedCategory,
 
-                  DropdownButtonFormField<
-                      String>(
-
-                    value:
-                        selectedCategory,
-
-                    decoration:
-                        InputDecoration(
-
-                      labelText:
-                          'Expense Category',
+                    decoration: InputDecoration(
+                      labelText: 'Expense Category',
 
                       filled: true,
 
-                      fillColor:
-                          const Color(
-                        0xFFF5F7FB,
-                      ),
+                      fillColor: const Color(0xFFF5F7FB),
 
-                      border:
-                          OutlineInputBorder(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
 
-                        borderRadius:
-                            BorderRadius.circular(
-                          18,
-                        ),
-
-                        borderSide:
-                            BorderSide.none,
+                        borderSide: BorderSide.none,
                       ),
                     ),
 
-                    items:
-                        expenseCategories
-                            .docs
-                            .map(
+                    items: expenseCategories.docs.map((doc) {
+                      return DropdownMenuItem<String>(
+                        value: doc['title'],
 
-                      (doc) {
-
-                        return DropdownMenuItem<String>(
-
-                          value:
-                              doc['title'],
-
-                          child: Text(
-                            doc['title'],
-                          ),
-                        );
-                      },
-                    ).toList(),
+                        child: Text(doc['title']),
+                      );
+                    }).toList(),
 
                     onChanged: (value) {
-
-                      final doc =
-                          expenseCategories
-                              .docs
-                              .firstWhere(
-
-                        (element) {
-
-                          return element[
-                                  'title'] ==
-                              value;
-                        },
-                      );
+                      final doc = expenseCategories.docs.firstWhere((element) {
+                        return element['title'] == value;
+                      });
 
                       setSheetState(() {
+                        selectedCategory = value;
 
-                        selectedCategory =
-                            value;
-
-                        selectedCategoryId =
-                            doc.id;
+                        selectedCategoryId = doc.id;
                       });
                     },
                   ),
 
-                  const SizedBox(
-                    height: 18,
-                  ),
+                  const SizedBox(height: 18),
 
                   // =====================
                   // LIMIT
                   // =====================
-
                   TextField(
+                    controller: amountController,
 
-                    controller:
-                        amountController,
+                    keyboardType: TextInputType.number,
 
-                    keyboardType:
-                        TextInputType
-                            .number,
-
-                    decoration:
-                        InputDecoration(
-
-                      labelText:
-                          'Limit Amount',
+                    decoration: InputDecoration(
+                      labelText: 'Limit Amount',
 
                       filled: true,
 
-                      fillColor:
-                          const Color(
-                        0xFFF5F7FB,
-                      ),
+                      fillColor: const Color(0xFFF5F7FB),
 
-                      border:
-                          OutlineInputBorder(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
 
-                        borderRadius:
-                            BorderRadius.circular(
-                          18,
-                        ),
-
-                        borderSide:
-                            BorderSide.none,
+                        borderSide: BorderSide.none,
                       ),
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 18,
-                  ),
+                  const SizedBox(height: 18),
 
                   // =====================
                   // PERSON
                   // =====================
+                  DropdownButtonFormField<String>(
+                    value: selectedPerson,
 
-                  DropdownButtonFormField<
-                      String>(
-
-                    value:
-                        selectedPerson,
-
-                    decoration:
-                        InputDecoration(
-
-                      labelText:
-                          'Person',
+                    decoration: InputDecoration(
+                      labelText: 'Person',
 
                       filled: true,
 
-                      fillColor:
-                          const Color(
-                        0xFFF5F7FB,
-                      ),
+                      fillColor: const Color(0xFFF5F7FB),
 
-                      border:
-                          OutlineInputBorder(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
 
-                        borderRadius:
-                            BorderRadius.circular(
-                          18,
-                        ),
-
-                        borderSide:
-                            BorderSide.none,
+                        borderSide: BorderSide.none,
                       ),
                     ),
 
-                    items:
-                        persons.docs.map(
+                    items: persons.docs.map((doc) {
+                      return DropdownMenuItem<String>(
+                        value: doc['title'],
 
-                      (doc) {
-
-                        return DropdownMenuItem<String>(
-
-                          value:
-                              doc['title'],
-
-                          child: Text(
-                            doc['title'],
-                          ),
-                        );
-                      },
-                    ).toList(),
+                        child: Text(doc['title']),
+                      );
+                    }).toList(),
 
                     onChanged: (value) {
-
-                      final doc =
-                          persons.docs
-                              .firstWhere(
-
-                        (element) {
-
-                          return element[
-                                  'title'] ==
-                              value;
-                        },
-                      );
+                      final doc = persons.docs.firstWhere((element) {
+                        return element['title'] == value;
+                      });
 
                       setSheetState(() {
+                        selectedPerson = value;
 
-                        selectedPerson =
-                            value;
-
-                        selectedPersonId =
-                            doc.id;
+                        selectedPersonId = doc.id;
                       });
                     },
                   ),
 
-                  const SizedBox(
-                    height: 28,
-                  ),
+                  const SizedBox(height: 28),
 
                   // =====================
                   // SAVE
                   // =====================
-
                   SizedBox(
+                    width: double.infinity,
 
-                    width:
-                        double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
 
-                    child:
-                        ElevatedButton(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
 
-                      style:
-                          ElevatedButton
-                              .styleFrom(
-
-                        backgroundColor:
-                            Colors.black,
-
-                        padding:
-                            const EdgeInsets.symmetric(
-
-                          vertical: 16,
-                        ),
-
-                        shape:
-                            RoundedRectangleBorder(
-
-                          borderRadius:
-                              BorderRadius.circular(
-                            18,
-                          ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
                         ),
                       ),
 
-                      onPressed:
-                          () async {
-
-                        if (selectedCategory ==
-                                null ||
-
-                            selectedPerson ==
-                                null ||
-
-                            amountController
-                                .text
-                                .trim()
-                                .isEmpty) {
-
+                      onPressed: () async {
+                        if (selectedCategory == null ||
+                            selectedPerson == null ||
+                            amountController.text.trim().isEmpty) {
                           return;
                         }
 
-                        final limit =
-                            double.parse(
-
-                          amountController
-                              .text
-                              .trim(),
+                        final limit = double.parse(
+                          amountController.text.trim(),
                         );
 
                         final docId =
-
                             '${selectedCategoryId}_${selectedPersonId}';
 
                         await firestore
-                            .collection(
-                              'expense_limits',
-                            )
-                            .doc(
-                              docId,
-                            )
+                            .collection('expense_limits')
+                            .doc(docId)
                             .set({
+                              'category': selectedCategory,
 
-                          'category':
-                              selectedCategory,
+                              'categoryId': selectedCategoryId,
 
-                          'categoryId':
-                              selectedCategoryId,
+                              'person': selectedPerson,
 
-                          'person':
-                              selectedPerson,
+                              'personId': selectedPersonId,
 
-                          'personId':
-                              selectedPersonId,
-
-                          'limit':
-                              limit,
-                        });
+                              'limit': limit,
+                            });
 
                         if (!mounted) {
-
                           return;
                         }
 
-                        Navigator.pop(
-                          context,
-                        );
+                        Navigator.pop(context);
                       },
 
                       child: const Text(
-
                         'Save',
 
                         style: TextStyle(
+                          color: Colors.white,
 
-                          color:
-                              Colors.white,
-
-                          fontWeight:
-                              FontWeight.bold,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -501,245 +282,122 @@ class _ExpenseLimitsScreenState
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FB),
 
-      backgroundColor:
-          const Color(
-        0xFFF5F7FB,
-      ),
+      appBar: AppBar(title: const Text('Expense Limits')),
 
-      appBar: AppBar(
-
-        title: const Text(
-          'Expense Limits',
-        ),
-      ),
-
-      floatingActionButton:
-          FloatingActionButton(
-
-        backgroundColor:
-            Colors.black,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.black,
 
         onPressed: () {
-
           openLimitSheet();
         },
 
-        child: const Icon(
-
-          Icons.add_rounded,
-
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.add_rounded, color: Colors.white),
       ),
 
-      body: StreamBuilder<
+      body: StreamBuilder<QuerySnapshot>(
+        stream: firestore.collection('expense_limits').snapshots(),
 
-          QuerySnapshot>(
-
-        stream:
-            firestore
-                .collection(
-                  'expense_limits',
-                )
-                .snapshots(),
-
-        builder:
-            (context, snapshot) {
-
+        builder: (context, snapshot) {
           if (!snapshot.hasData) {
-
-            return const Center(
-              child:
-                  CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
-          final docs =
-              snapshot.data!.docs;
+          final docs = snapshot.data!.docs;
 
           if (docs.isEmpty) {
-
-            return const Center(
-
-              child: Text(
-                'No Expense Limits',
-              ),
-            );
+            return const Center(child: Text('No Expense Limits'));
           }
 
           return ListView.builder(
+            padding: const EdgeInsets.all(18),
 
-            padding:
-                const EdgeInsets.all(
-              18,
-            ),
+            itemCount: docs.length,
 
-            itemCount:
-                docs.length,
-
-            itemBuilder:
-                (context, index) {
-
-              final document =
-                  docs[index];
+            itemBuilder: (context, index) {
+              final document = docs[index];
 
               return Container(
+                margin: const EdgeInsets.only(bottom: 14),
 
-                margin:
-                    const EdgeInsets.only(
-                  bottom: 14,
-                ),
+                padding: const EdgeInsets.all(18),
 
-                padding:
-                    const EdgeInsets.all(
-                  18,
-                ),
-
-                decoration:
-                    BoxDecoration(
-
+                decoration: BoxDecoration(
                   color: Colors.white,
 
-                  borderRadius:
-                      BorderRadius.circular(
-                    24,
-                  ),
+                  borderRadius: BorderRadius.circular(24),
                 ),
 
                 child: Row(
-
                   children: [
-
                     Container(
-
                       height: 52,
 
                       width: 52,
 
-                      decoration:
-                          BoxDecoration(
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.12),
 
-                        color:
-                            Colors.orange
-                                .withOpacity(
-                          0.12,
-                        ),
-
-                        borderRadius:
-                            BorderRadius.circular(
-                          16,
-                        ),
+                        borderRadius: BorderRadius.circular(16),
                       ),
 
                       child: const Center(
-
-                        child: Text(
-                          '💸',
-                          style:
-                              TextStyle(
-                            fontSize:
-                                22,
-                          ),
-                        ),
+                        child: Text('💸', style: TextStyle(fontSize: 22)),
                       ),
                     ),
 
-                    const SizedBox(
-                      width: 16,
-                    ),
+                    const SizedBox(width: 16),
 
                     Expanded(
-
                       child: Column(
-
-                        crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
 
                         children: [
-
                           Text(
+                            document['category'],
 
-                            document[
-                                'category'],
+                            style: const TextStyle(
+                              fontSize: 16,
 
-                            style:
-                                const TextStyle(
-
-                              fontSize:
-                                  16,
-
-                              fontWeight:
-                                  FontWeight
-                                      .bold,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
 
-                          const SizedBox(
-                            height: 6,
-                          ),
+                          const SizedBox(height: 6),
 
                           Text(
+                            document['person'],
 
-                            document[
-                                'person'],
-
-                            style:
-                                TextStyle(
-
-                              color:
-                                  Colors.grey
-                                      .shade600,
-                            ),
+                            style: TextStyle(color: Colors.grey.shade600),
                           ),
                         ],
                       ),
                     ),
 
                     Column(
-
-                      crossAxisAlignment:
-                          CrossAxisAlignment
-                              .end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
 
                       children: [
-
                         Text(
-
                           '₹${document['limit'].toStringAsFixed(0)}',
 
-                          style:
-                              const TextStyle(
-
+                          style: const TextStyle(
                             fontSize: 18,
 
-                            fontWeight:
-                                FontWeight
-                                    .bold,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
 
-                        const SizedBox(
-                          height: 8,
-                        ),
+                        const SizedBox(height: 8),
 
                         GestureDetector(
-
                           onTap: () {
-
-                            openLimitSheet(
-                              document:
-                                  document,
-                            );
+                            openLimitSheet(document: document);
                           },
 
-                          child: const Icon(
-                            Icons
-                                .edit_rounded,
-                          ),
+                          child: const Icon(Icons.edit_rounded),
                         ),
                       ],
                     ),

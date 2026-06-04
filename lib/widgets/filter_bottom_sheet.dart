@@ -1,532 +1,276 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../constants/app_strings.dart';
 import '../constants/firestore_collections.dart';
 import '../models/filter_model.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_text_styles.dart';
+import '../widgets/app_dropdown.dart';
 
-class FilterBottomSheet
-    extends StatefulWidget {
-
+class FilterBottomSheet extends StatefulWidget {
   final FilterModel currentFilter;
-
-  final Function(FilterModel)
-      onApply;
+  final ValueChanged<FilterModel> onApply;
 
   const FilterBottomSheet({
-
     super.key,
-
     required this.currentFilter,
-
     required this.onApply,
   });
 
   @override
-  State<FilterBottomSheet>
-      createState() =>
-          _FilterBottomSheetState();
+  State<FilterBottomSheet> createState() => _FilterBottomSheetState();
 }
 
-class _FilterBottomSheetState
-    extends State<FilterBottomSheet> {
-
+class _FilterBottomSheetState extends State<FilterBottomSheet> {
   late FilterModel filter;
 
-  final TextEditingController
-      searchController =
-      TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
-
     super.initState();
 
     filter = widget.currentFilter;
-
-    searchController.text =
-        filter.searchText ?? '';
+    searchController.text = widget.currentFilter.searchText ?? '';
   }
 
-  String getCategoryCollection() {
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
+  String _getCategoryCollection() {
     switch (filter.type) {
-
       case 'Income':
-        return FirestoreCollections
-            .incomeCategories;
+        return FirestoreCollections.incomeCategories;
 
       case 'Transfer':
-        return FirestoreCollections
-            .transferCategories;
+        return FirestoreCollections.transferCategories;
 
       default:
-        return FirestoreCollections
-            .expenseCategories;
+        return FirestoreCollections.expenseCategories;
     }
   }
 
-  Future<void> pickStartDate() async {
-
-    final pickedDate =
-        await showDatePicker(
-
+  Future<void> _pickStartDate() async {
+    final pickedDate = await showDatePicker(
       context: context,
-
-      initialDate:
-          filter.startDate ??
-              DateTime.now(),
-
-      firstDate:
-          DateTime(2020),
-
-      lastDate:
-          DateTime(2100),
+      initialDate: filter.startDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
     );
 
-    if (pickedDate == null) {
-      return;
-    }
+    if (pickedDate == null) return;
 
     setState(() {
-
-      filter = filter.copyWith(
-        startDate: pickedDate,
-      );
+      filter = filter.copyWith(startDate: pickedDate);
     });
   }
 
-  Future<void> pickEndDate() async {
-
-    final pickedDate =
-        await showDatePicker(
-
+  Future<void> _pickEndDate() async {
+    final pickedDate = await showDatePicker(
       context: context,
-
-      initialDate:
-          filter.endDate ??
-              DateTime.now(),
-
-      firstDate:
-          DateTime(2020),
-
-      lastDate:
-          DateTime(2100),
+      initialDate: filter.endDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
     );
 
-    if (pickedDate == null) {
-      return;
-    }
+    if (pickedDate == null) return;
 
     setState(() {
-
-      filter = filter.copyWith(
-        endDate: pickedDate,
-      );
+      filter = filter.copyWith(endDate: pickedDate);
     });
+  }
+
+  Widget _buildDateTile({
+    required String title,
+    required String emptyText,
+    required DateTime? value,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(title),
+      subtitle: Text(
+        value != null ? '${value.day}/${value.month}/${value.year}' : emptyText,
+      ),
+      trailing: const Icon(Icons.calendar_month_rounded),
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildFirestoreDropdown({
+    required String hint,
+    required String collection,
+    required String? value,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection(collection).snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final docs = snapshot.data?.docs ?? [];
+
+        final itemExists = docs.any((doc) => doc.id == value);
+
+        return AppDropdown<String>(
+          hint: hint,
+          icon: Icons.arrow_drop_down_circle_outlined,
+          value: itemExists ? value : null,
+          items: docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+
+            return DropdownMenuItem<String>(
+              value: doc.id,
+              child: Text(data['title'] ?? ''),
+            );
+          }).toList(),
+          onChanged: onChanged,
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
-
-      padding:
-          const EdgeInsets.all(20),
-
-      decoration:
-          const BoxDecoration(
-
-        color: Colors.white,
-
-        borderRadius:
-            BorderRadius.vertical(
-          top: Radius.circular(30),
+      padding: const EdgeInsets.all(AppSpacing.card),
+      decoration: const BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppSpacing.radius),
         ),
       ),
-
       child: SingleChildScrollView(
-
         child: Column(
-
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
-
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            const Center(
-
-              child: Text(
-
-                'Filters',
-
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight:
-                      FontWeight.bold,
-                ),
-              ),
+            Center(
+              child: Text(AppStrings.filters, style: AppTextStyles.heading2),
             ),
-
-            const SizedBox(height: 24),
-
-            // TYPE
-            DropdownButtonFormField<String>(
-
+            const SizedBox(height: AppSpacing.sectionGap),
+            AppDropdown<String>(
+              hint: AppStrings.type,
+              icon: Icons.category_outlined,
               value: filter.type,
-
-              decoration:
-                  const InputDecoration(
-                labelText: 'Type',
-              ),
-
               items: const [
-
-                DropdownMenuItem(
-                  value: 'Expense',
-                  child: Text('Expense'),
-                ),
-
-                DropdownMenuItem(
-                  value: 'Income',
-                  child: Text('Income'),
-                ),
-
-                DropdownMenuItem(
-                  value: 'Transfer',
-                  child: Text('Transfer'),
-                ),
+                DropdownMenuItem(value: 'Expense', child: Text('Expense')),
+                DropdownMenuItem(value: 'Income', child: Text('Income')),
+                DropdownMenuItem(value: 'Transfer', child: Text('Transfer')),
               ],
-
               onChanged: (value) {
-
                 setState(() {
-
-                  filter = filter.copyWith(
-
-                    type: value,
-
-                    clearCategory: true,
-                  );
+                  filter = filter.copyWith(type: value, clearCategory: true);
                 });
               },
             ),
-
-            const SizedBox(height: 20),
-
-            // CATEGORY
-            firestoreDropdown(
-
-              label: 'Category',
-
-              collection:
-                  getCategoryCollection(),
-
-              value:
-                  filter.categoryId,
-
+            const SizedBox(height: AppSpacing.xl),
+            _buildFirestoreDropdown(
+              hint: AppStrings.category,
+              collection: _getCategoryCollection(),
+              value: filter.categoryId,
               onChanged: (value) {
-
                 setState(() {
-
-                  filter = filter.copyWith(
-                    categoryId: value,
-                  );
+                  filter = filter.copyWith(categoryId: value);
                 });
               },
             ),
-
-            const SizedBox(height: 20),
-
-            // PAYMENT METHOD
-            firestoreDropdown(
-
-              label: 'Payment Method',
-
-              collection:
-                  FirestoreCollections
-                      .paymentMethods,
-
-              value:
-                  filter.paymentMethodId,
-
+            const SizedBox(height: AppSpacing.xl),
+            _buildFirestoreDropdown(
+              hint: AppStrings.paymentMethod,
+              collection: FirestoreCollections.paymentMethods,
+              value: filter.paymentMethodId,
               onChanged: (value) {
-
                 setState(() {
-
-                  filter = filter.copyWith(
-                    paymentMethodId:
-                        value,
-                  );
+                  filter = filter.copyWith(paymentMethodId: value);
                 });
               },
             ),
-
-            const SizedBox(height: 20),
-
-            // PERSON
-            firestoreDropdown(
-
-              label: 'Person',
-
-              collection:
-                  FirestoreCollections
-                      .persons,
-
-              value:
-                  filter.personId,
-
+            const SizedBox(height: AppSpacing.xl),
+            _buildFirestoreDropdown(
+              hint: AppStrings.person,
+              collection: FirestoreCollections.persons,
+              value: filter.personId,
               onChanged: (value) {
-
                 setState(() {
-
-                  filter = filter.copyWith(
-                    personId: value,
-                  );
+                  filter = filter.copyWith(personId: value);
                 });
               },
             ),
-
-            const SizedBox(height: 20),
-
-            // TAG
-            firestoreDropdown(
-
-              label: 'Tag',
-
-              collection:
-                  FirestoreCollections
-                      .tags,
-
-              value:
-                  filter.tagId,
-
+            const SizedBox(height: AppSpacing.xl),
+            _buildFirestoreDropdown(
+              hint: AppStrings.tag,
+              collection: FirestoreCollections.tags,
+              value: filter.tagId,
               onChanged: (value) {
-
                 setState(() {
-
-                  filter = filter.copyWith(
-                    tagId: value,
-                  );
+                  filter = filter.copyWith(tagId: value);
                 });
               },
             ),
-
-            const SizedBox(height: 20),
-
-            // START DATE
-            ListTile(
-
-              contentPadding:
-                  EdgeInsets.zero,
-
-              title: const Text(
-                'Start Date',
-              ),
-
-              subtitle: Text(
-
-                filter.startDate != null
-
-                    ? '${filter.startDate!.day}/${filter.startDate!.month}/${filter.startDate!.year}'
-
-                    : 'Select Start Date',
-              ),
-
-              trailing: const Icon(
-                Icons.calendar_month,
-              ),
-
-              onTap: pickStartDate,
+            const SizedBox(height: AppSpacing.xl),
+            _buildDateTile(
+              title: AppStrings.startDate,
+              emptyText: AppStrings.selectStartDate,
+              value: filter.startDate,
+              onTap: _pickStartDate,
             ),
-
-            const SizedBox(height: 10),
-
-            // END DATE
-            ListTile(
-
-              contentPadding:
-                  EdgeInsets.zero,
-
-              title: const Text(
-                'End Date',
-              ),
-
-              subtitle: Text(
-
-                filter.endDate != null
-
-                    ? '${filter.endDate!.day}/${filter.endDate!.month}/${filter.endDate!.year}'
-
-                    : 'Select End Date',
-              ),
-
-              trailing: const Icon(
-                Icons.calendar_month,
-              ),
-
-              onTap: pickEndDate,
+            const SizedBox(height: AppSpacing.sm),
+            _buildDateTile(
+              title: AppStrings.endDate,
+              emptyText: AppStrings.selectEndDate,
+              value: filter.endDate,
+              onTap: _pickEndDate,
             ),
-
-            const SizedBox(height: 20),
-
-            // SEARCH
+            const SizedBox(height: AppSpacing.xl),
             TextField(
-
-              controller:
-                  searchController,
-
-              decoration:
-                  const InputDecoration(
-                labelText:
-                    'Search Notes',
+              controller: searchController,
+              decoration: const InputDecoration(
+                labelText: AppStrings.searchNotes,
               ),
-
               onChanged: (value) {
-
-                setState(() {
-
-                  filter = filter.copyWith(
-                    searchText: value,
-                  );
-                });
+                filter = filter.copyWith(searchText: value);
               },
             ),
-
             const SizedBox(height: 30),
-
-            // APPLY BUTTON
             SizedBox(
-
               width: double.infinity,
               height: 55,
-
               child: ElevatedButton(
-
                 onPressed: () {
-
                   widget.onApply(filter);
-
                   Navigator.pop(context);
                 },
-
-                style:
-                    ElevatedButton.styleFrom(
-                  backgroundColor:
-                      Colors.green,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
                 ),
-
                 child: const Text(
-
-                  'Apply Filters',
-
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
+                  AppStrings.applyFilters,
+                  style: AppTextStyles.button,
                 ),
               ),
             ),
-
-            const SizedBox(height: 12),
-
-            // CLEAR BUTTON
+            const SizedBox(height: AppSpacing.md),
             SizedBox(
-
               width: double.infinity,
               height: 55,
-
               child: OutlinedButton(
-
                 onPressed: () {
-
-                  widget.onApply(
-                    const FilterModel(),
-                  );
-
+                  widget.onApply(const FilterModel());
                   Navigator.pop(context);
                 },
-
-                child: const Text(
-                  'Clear Filters',
-                ),
+                child: const Text(AppStrings.clearFilters),
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget firestoreDropdown({
-
-    required String label,
-
-    required String collection,
-
-    required String? value,
-
-    required Function(String?)
-        onChanged,
-  }) {
-
-    return StreamBuilder<QuerySnapshot>(
-
-      stream:
-          FirebaseFirestore.instance
-              .collection(collection)
-              .snapshots(),
-
-      builder: (context, snapshot) {
-
-        if (!snapshot.hasData) {
-
-          return const Center(
-            child:
-                CircularProgressIndicator(),
-          );
-        }
-
-        final docs =
-            snapshot.data!.docs;
-
-        final itemExists = docs.any(
-          (doc) => doc.id == value,
-        );
-
-        return DropdownButtonFormField<String>(
-
-          value:
-              itemExists
-                  ? value
-                  : null,
-
-          decoration:
-              InputDecoration(
-            labelText: label,
-          ),
-
-          items:
-              docs.map((doc) {
-
-            final data =
-                doc.data()
-                    as Map<String,
-                        dynamic>;
-
-            return DropdownMenuItem<String>(
-
-              value: doc.id,
-
-              child: Text(
-                data['title'],
-              ),
-            );
-
-          }).toList(),
-
-          onChanged: onChanged,
-        );
-      },
     );
   }
 }

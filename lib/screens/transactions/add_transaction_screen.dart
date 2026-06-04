@@ -1,21 +1,20 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:money_tracker/services/workspace/workspace_context.dart';
 
 import '../../constants/firestore_collections.dart';
 import '../../models/transaction_model.dart';
 import '../../services/transactions/transaction_service.dart';
+import '../../services/auth/workspace_service.dart';
 
-class AddTransactionScreen
-    extends StatefulWidget {
-
-  final Map<String, dynamic>?
-      transactionData;
+class AddTransactionScreen extends StatefulWidget {
+  final Map<String, dynamic>? transactionData;
 
   final String? transactionId;
 
   const AddTransactionScreen({
-
     super.key,
 
     this.transactionData,
@@ -23,21 +22,13 @@ class AddTransactionScreen
   });
 
   @override
-  State<AddTransactionScreen>
-      createState() =>
-          _AddTransactionScreenState();
+  State<AddTransactionScreen> createState() => _AddTransactionScreenState();
 }
 
-class _AddTransactionScreenState
-    extends State<
-        AddTransactionScreen> {
+class _AddTransactionScreenState extends State<AddTransactionScreen> {
+  final TransactionService transactionService = TransactionService();
 
-  final TransactionService
-      transactionService =
-      TransactionService();
-
-  String selectedType =
-      'Expense';
+  String selectedType = 'Expense';
 
   String? selectedCategoryId;
   String? selectedCategoryName;
@@ -53,143 +44,92 @@ class _AddTransactionScreenState
   String? selectedTagId;
   String? selectedTagName;
 
-  List<String> detailList =
-      [];
+  List<String> detailList = [];
 
-  DateTime selectedDate =
-      DateTime.now();
+  DateTime selectedDate = DateTime.now();
 
-  final TextEditingController
-      amountController =
-      TextEditingController();
+  final TextEditingController amountController = TextEditingController();
 
-  final TextEditingController
-      notesController =
-      TextEditingController();
+  final TextEditingController notesController = TextEditingController();
 
   @override
   void initState() {
-
     super.initState();
-
+    print(FirebaseAuth.instance.currentUser?.uid);
     loadExistingData();
   }
 
   void loadExistingData() {
-
-    final data =
-        widget.transactionData;
+    final data = widget.transactionData;
 
     if (data == null) {
       return;
     }
 
-    selectedType =
-        data['type'];
+    selectedType = data['type'];
 
-    selectedCategoryId =
-        data['categoryId'];
+    selectedCategoryId = data['categoryId'];
 
-    selectedCategoryName =
-        data['category'];
+    selectedCategoryName = data['category'];
 
-    selectedDetail =
-        data['detail'];
+    selectedDetail = data['detail'];
 
-    selectedPaymentMethodId =
-        data['paymentMethodId'];
+    selectedPaymentMethodId = data['paymentMethodId'];
 
-    selectedPaymentMethodName =
-        data['paymentMethod'];
+    selectedPaymentMethodName = data['paymentMethod'];
 
-    selectedPersonId =
-        data['personId'];
+    selectedPersonId = data['personId'];
 
-    selectedPersonName =
-        data['person'];
+    selectedPersonName = data['person'];
 
-    selectedTagId =
-        data['tagId'];
+    selectedTagId = data['tagId'];
 
-    selectedTagName =
-        data['tag'];
+    selectedTagName = data['tag'];
 
-    amountController.text =
-        data['amount']
-            .toString();
+    amountController.text = data['amount'].toString();
 
-    notesController.text =
-        data['notes'] ?? '';
+    notesController.text = data['notes'] ?? '';
 
-    selectedDate =
-        (data['date']
-                as Timestamp)
-            .toDate();
+    selectedDate = (data['date'] as Timestamp).toDate();
 
-    loadDetails(
-      selectedCategoryId!,
-    );
+    loadDetails(selectedCategoryId!);
   }
 
   String get categoryCollection {
-
     switch (selectedType) {
-
       case 'Income':
-        return FirestoreCollections
-            .incomeCategories;
+        return FirestoreCollections.incomeCategories;
 
       case 'Transfer':
-        return FirestoreCollections
-            .transferCategories;
+        return FirestoreCollections.transferCategories;
 
       default:
-        return FirestoreCollections
-            .expenseCategories;
+        return FirestoreCollections.expenseCategories;
     }
   }
 
-  Future<void> loadDetails(
-    String categoryId,
-  ) async {
+  Future<void> loadDetails(String categoryId) async {
+    final doc = await FirebaseFirestore.instance
+        .collection(categoryCollection)
+        .doc(categoryId)
+        .get();
 
-    final doc =
-        await FirebaseFirestore
-            .instance
-            .collection(
-              categoryCollection,
-            )
-            .doc(categoryId)
-            .get();
-
-    final data =
-        doc.data()
-            as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>;
 
     setState(() {
-
-      detailList =
-          List<String>.from(
-        data['details'] ?? [],
-      );
+      detailList = List<String>.from(data['details'] ?? []);
     });
   }
 
   Future<void> pickDate() async {
-
-    final pickedDate =
-        await showDatePicker(
-
+    final pickedDate = await showDatePicker(
       context: context,
 
-      initialDate:
-          selectedDate,
+      initialDate: selectedDate,
 
-      firstDate:
-          DateTime(2020),
+      firstDate: DateTime(2020),
 
-      lastDate:
-          DateTime(2100),
+      lastDate: DateTime(2100),
     );
 
     if (pickedDate == null) {
@@ -197,590 +137,354 @@ class _AddTransactionScreenState
     }
 
     setState(() {
-
-      selectedDate =
-          pickedDate;
+      selectedDate = pickedDate;
     });
   }
 
-  Future<void> saveTransaction()
-      async {
-
-    if (selectedCategoryId ==
-            null ||
+  Future<void> saveTransaction() async {
+    if (selectedCategoryId == null ||
         selectedDetail == null ||
-        selectedPaymentMethodId ==
-            null ||
+        selectedPaymentMethodId == null ||
         selectedPersonId == null ||
         selectedTagId == null ||
-        amountController.text
-            .trim()
-            .isEmpty) {
-
+        amountController.text.trim().isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(
-
-        const SnackBar(
-
-          content: Text(
-            'Please fill all fields',
-          ),
-        ),
-      );
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
 
       return;
     }
 
-    final amount =
-        double.tryParse(
-      amountController.text.trim(),
-    );
+    final amount = double.tryParse(amountController.text.trim());
+
+    final workspaceId = await WorkspaceService.getCurrentWorkspaceId();
 
     if (amount == null) {
-
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(
-
-        const SnackBar(
-
-          content: Text(
-            'Invalid Amount',
-          ),
-        ),
-      );
+      ).showSnackBar(const SnackBar(content: Text('Invalid Amount')));
 
       return;
     }
 
-    final transaction =
-        TransactionModel(
+    final transaction = TransactionModel(
+      id: widget.transactionId ?? '',
 
-      id:
-          widget.transactionId ??
-              '',
+      workspaceId: workspaceId,
 
       type: selectedType,
 
-      categoryId:
-          selectedCategoryId!,
+      categoryId: selectedCategoryId!,
 
-      category:
-          selectedCategoryName!,
+      category: selectedCategoryName!,
 
-      detail:
-          selectedDetail!,
+      detail: selectedDetail!,
 
       amount: amount,
 
-      paymentMethodId:
-          selectedPaymentMethodId!,
+      paymentMethodId: selectedPaymentMethodId!,
 
-      paymentMethod:
-          selectedPaymentMethodName!,
+      paymentMethod: selectedPaymentMethodName!,
 
-      personId:
-          selectedPersonId!,
+      personId: selectedPersonId!,
 
-      person:
-          selectedPersonName!,
+      person: selectedPersonName!,
 
-      tagId:
-          selectedTagId!,
+      tagId: selectedTagId!,
 
-      tag:
-          selectedTagName!,
+      tag: selectedTagName!,
 
-      notes:
-          notesController.text
-              .trim(),
+      notes: notesController.text.trim(),
 
       date: selectedDate,
 
-      month:
-          selectedDate.month,
+      month: selectedDate.month,
 
-      year:
-          selectedDate.year,
+      year: selectedDate.year,
     );
 
-    if (widget.transactionId !=
-        null) {
-
-      await transactionService
-          .updateTransaction(
-        transaction,
-      );
-
+    if (widget.transactionId != null) {
+      await transactionService.updateTransaction(transaction);
     } else {
-
-      await transactionService
-          .addTransaction(
-        transaction,
-      );
+      await transactionService.addTransaction(transaction);
     }
 
     if (!mounted) {
       return;
     }
 
-    Navigator.pop(
-      context,
-      true,
-    );
+    Navigator.pop(context, true);
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-
-      backgroundColor:
-          const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF5F6FA),
 
       appBar: AppBar(
-
-        backgroundColor:
-            const Color(0xFFF5F6FA),
+        backgroundColor: const Color(0xFFF5F6FA),
 
         elevation: 0,
 
         centerTitle: true,
 
         title: Text(
-
-          widget.transactionId !=
-                  null
-              ? 'Edit Transaction'
-              : 'Add Transaction',
+          widget.transactionId != null ? 'Edit Transaction' : 'Add Transaction',
 
           style: const TextStyle(
-
             color: Colors.black,
 
-            fontWeight:
-                FontWeight.w700,
+            fontWeight: FontWeight.w700,
             fontSize: 22,
           ),
         ),
       ),
 
-      body:
-          SingleChildScrollView(
-
-        padding:
-            const EdgeInsets.all(
-          16,
-        ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
 
         child: Column(
-
           children: [
-
             // TYPE BAR
             Container(
+              padding: const EdgeInsets.all(3),
 
-              padding:
-                  const EdgeInsets.all(
-                3,
-              ),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8ECEF),
 
-              decoration:
-                  BoxDecoration(
-
-                color:
-                    const Color(
-                  0xFFE8ECEF,
-                ),
-
-                borderRadius:
-                    BorderRadius.circular(
-                  30,
-                ),
+                borderRadius: BorderRadius.circular(30),
               ),
 
               child: Row(
-
                 children: [
+                  typeButton('Expense'),
 
-                  typeButton(
-                    'Expense',
-                  ),
+                  typeButton('Income'),
 
-                  typeButton(
-                    'Income',
-                  ),
-
-                  typeButton(
-                    'Transfer',
-                  ),
+                  typeButton('Transfer'),
                 ],
               ),
             ),
 
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
 
             // AMOUNT
             modernTextField(
+              controller: amountController,
 
-              controller:
-                  amountController,
+              hint: 'Amount*',
 
-              hint:
-                  'Amount*',
+              icon: Icons.currency_rupee,
 
-              icon:
-                  Icons.currency_rupee,
+              iconColor: Colors.black,
 
-              iconColor:
-                  Colors.black,
-
-              keyboardType:
-                  const TextInputType.numberWithOptions(
+              keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
             ),
 
-            const SizedBox(
-              height: 14,
-            ),
+            const SizedBox(height: 14),
 
             // CATEGORY
             StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection(categoryCollection)
+                  .where(
+                    'workspaceId',
+                    isEqualTo: WorkspaceContext.currentWorkspaceId,
+                  )
+                  .snapshots(),
 
-              stream:
-                  FirebaseFirestore
-                      .instance
-                      .collection(
-                        categoryCollection,
-                      )
-                      .snapshots(),
-
-              builder:
-                  (context, snapshot) {
-
-                if (!snapshot
-                    .hasData) {
-
-                  return const Center(
-                    child:
-                        CircularProgressIndicator(),
-                  );
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
                 }
 
-                final docs =
-                    snapshot.data!.docs;
+                final docs = snapshot.data!.docs;
 
                 return modernDropdown<String>(
+                  icon: Icons.category_rounded,
 
-                  icon:
-                      Icons.category_rounded,
+                  iconColor: Colors.green,
 
-                  iconColor:
-                      Colors.green,
+                  hint: 'Select Category*',
 
-                  hint:
-                      'Select Category*',
+                  value: selectedCategoryId,
 
-                  value:
-                      selectedCategoryId,
-
-                  items:
-                      docs.map((doc) {
-
-                    final data =
-                        doc.data()
-                            as Map<String,
-                                dynamic>;
+                  items: docs.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
 
                     return DropdownMenuItem<String>(
-
                       value: doc.id,
 
-                      child: Text(
-                        data['title'],
-                      ),
+                      child: Text(data['title']),
                     );
-
                   }).toList(),
 
-                  onChanged:
-                      (value) {
-
-                    if (value ==
-                        null) {
+                  onChanged: (value) {
+                    if (value == null) {
                       return;
                     }
 
-                    final selectedDoc =
-                        docs.firstWhere(
-                      (doc) =>
-                          doc.id ==
-                          value,
+                    final selectedDoc = docs.firstWhere(
+                      (doc) => doc.id == value,
                     );
 
                     final selectedData =
-                        selectedDoc
-                                .data()
-                            as Map<String,
-                                dynamic>;
+                        selectedDoc.data() as Map<String, dynamic>;
 
                     setState(() {
+                      selectedCategoryId = selectedDoc.id;
 
-                      selectedCategoryId =
-                          selectedDoc.id;
+                      selectedCategoryName = selectedData['title'];
 
-                      selectedCategoryName =
-                          selectedData[
-                              'title'];
-
-                      selectedDetail =
-                          null;
+                      selectedDetail = null;
                     });
 
-                    loadDetails(
-                      value,
-                    );
+                    loadDetails(value);
                   },
                 );
               },
             ),
 
-            const SizedBox(
-              height: 14,
-            ),
+            const SizedBox(height: 14),
 
             // DETAIL
             modernDropdown<String>(
+              icon: Icons.receipt_long_rounded,
 
-              icon:
-                  Icons.receipt_long_rounded,
+              iconColor: Colors.orange,
 
-              iconColor:
-                  Colors.orange,
+              hint: 'Select Detail*',
 
-              hint:
-                  'Select Detail*',
+              value: selectedDetail,
 
-              value:
-                  selectedDetail,
+              items: detailList.map((detail) {
+                return DropdownMenuItem<String>(
+                  value: detail,
 
-              items:
-                  detailList.map(
-                (detail) {
-
-                  return DropdownMenuItem<String>(
-
-                    value: detail,
-
-                    child: Text(
-                      detail,
-                    ),
-                  );
-
-                },
-              ).toList(),
+                  child: Text(detail),
+                );
+              }).toList(),
 
               onChanged: (value) {
-
                 setState(() {
-
-                  selectedDetail =
-                      value;
+                  selectedDetail = value;
                 });
               },
             ),
 
-            const SizedBox(
-              height: 14,
-            ),
+            const SizedBox(height: 14),
 
             // PAYMENT
             firestoreDropdown(
+              collection: FirestoreCollections.paymentMethods,
 
-              collection:
-                  FirestoreCollections
-                      .paymentMethods,
+              label: 'Select Payment Method*',
 
-              label:
-                  'Select Payment Method*',
+              icon: Icons.account_balance_wallet_rounded,
 
-              icon:
-                  Icons.account_balance_wallet_rounded,
+              iconColor: Colors.blue,
 
-              iconColor:
-                  Colors.blue,
+              value: selectedPaymentMethodId,
 
-              value:
-                  selectedPaymentMethodId,
-
-              onChanged:
-                  (id, name) {
-
+              onChanged: (id, name) {
                 setState(() {
+                  selectedPaymentMethodId = id;
 
-                  selectedPaymentMethodId =
-                      id;
-
-                  selectedPaymentMethodName =
-                      name;
+                  selectedPaymentMethodName = name;
                 });
               },
             ),
 
-            const SizedBox(
-              height: 14,
-            ),
+            const SizedBox(height: 14),
 
             // PERSON
             firestoreDropdown(
+              collection: FirestoreCollections.persons,
 
-              collection:
-                  FirestoreCollections
-                      .persons,
+              label: 'Select Person*',
 
-              label:
-                  'Select Person*',
+              icon: Icons.people_alt_rounded,
 
-              icon:
-                  Icons.people_alt_rounded,
+              iconColor: Colors.deepPurple,
 
-              iconColor:
-                  Colors.deepPurple,
+              value: selectedPersonId,
 
-              value:
-                  selectedPersonId,
-
-              onChanged:
-                  (id, name) {
-
+              onChanged: (id, name) {
                 setState(() {
+                  selectedPersonId = id;
 
-                  selectedPersonId =
-                      id;
-
-                  selectedPersonName =
-                      name;
+                  selectedPersonName = name;
                 });
               },
             ),
 
-            const SizedBox(
-              height: 14,
-            ),
+            const SizedBox(height: 14),
 
             // TAG
             firestoreDropdown(
+              collection: FirestoreCollections.tags,
 
-              collection:
-                  FirestoreCollections
-                      .tags,
+              label: 'Select Tag*',
 
-              label:
-                  'Select Tag*',
+              icon: Icons.sell_rounded,
 
-              icon:
-                  Icons.sell_rounded,
+              iconColor: const Color.fromARGB(255, 23, 75, 73),
 
-              iconColor:
-                  const Color.fromARGB(255, 23, 75, 73),
+              value: selectedTagId,
 
-              value:
-                  selectedTagId,
-
-              onChanged:
-                  (id, name) {
-
+              onChanged: (id, name) {
                 setState(() {
+                  selectedTagId = id;
 
-                  selectedTagId =
-                      id;
-
-                  selectedTagName =
-                      name;
+                  selectedTagName = name;
                 });
               },
             ),
 
-            const SizedBox(
-              height: 14,
-            ),
+            const SizedBox(height: 14),
 
             // NOTES
             modernTextField(
+              controller: notesController,
 
-              controller:
-                  notesController,
+              hint: 'Add Notes',
 
-              hint:
-                  'Add Notes',
+              icon: Icons.notes_rounded,
 
-              icon:
-                  Icons.notes_rounded,
-
-              iconColor:
-                  Colors.brown,
+              iconColor: Colors.brown,
 
               maxLines: 1,
             ),
 
-            const SizedBox(
-              height: 12,
-            ),
+            const SizedBox(height: 12),
 
             // DATE
             GestureDetector(
-
               onTap: pickDate,
 
               child: Container(
+                padding: const EdgeInsets.all(16),
 
-                padding:
-                    const EdgeInsets.all(
-                  16,
-                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
 
-                decoration:
-                    BoxDecoration(
-
-                  color:
-                      Colors.white,
-
-                  borderRadius:
-                      BorderRadius.circular(
-                    20,
-                  ),
+                  borderRadius: BorderRadius.circular(20),
                 ),
 
                 child: Row(
-
                   children: [
+                    Icon(Icons.calendar_month_rounded, color: Colors.black),
 
-                    Icon(
-
-                      Icons
-                          .calendar_month_rounded,
-
-                      color:
-                          Colors.black,
-                    ),
-
-                    const SizedBox(
-                      width: 12,
-                    ),
+                    const SizedBox(width: 12),
 
                     Text(
-
                       '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
 
-                      style:
-                          const TextStyle(
+                      style: const TextStyle(
                         fontSize: 13,
-                        fontWeight:
-    FontWeight.w500,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -788,58 +492,38 @@ class _AddTransactionScreenState
               ),
             ),
 
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
 
             // BUTTON
             SizedBox(
-
-              width:
-                  double.infinity,
+              width: double.infinity,
 
               height: 48,
 
               child: ElevatedButton(
+                onPressed: saveTransaction,
 
-                onPressed:
-                    saveTransaction,
-
-                style:
-                    ElevatedButton.styleFrom(
-
-                  backgroundColor:
-                      Colors.green,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
 
                   elevation: 0,
 
-                  shape:
-                      RoundedRectangleBorder(
-
-                    borderRadius:
-                        BorderRadius.circular(
-                      20,
-                    ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 ),
 
                 child: Text(
-
-                  widget.transactionId !=
-                          null
+                  widget.transactionId != null
                       ? 'Update Transaction'
                       : 'Save Transaction',
 
-                  style:
-                      const TextStyle(
-
-                    color:
-                        Colors.white,
+                  style: const TextStyle(
+                    color: Colors.white,
 
                     fontSize: 15,
 
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -850,100 +534,54 @@ class _AddTransactionScreenState
     );
   }
 
-  Widget typeButton(
-    String type,
-  ) {
-
-    final bool isSelected =
-        selectedType == type;
+  Widget typeButton(String type) {
+    final bool isSelected = selectedType == type;
 
     return Expanded(
-
       child: GestureDetector(
-
         onTap: () {
-
           setState(() {
-
             selectedType = type;
 
-            selectedCategoryId =
-                null;
+            selectedCategoryId = null;
 
-            selectedCategoryName =
-                null;
+            selectedCategoryName = null;
 
-            selectedDetail =
-                null;
+            selectedDetail = null;
 
             detailList = [];
           });
         },
 
         child: Container(
-
-          padding:
-              const EdgeInsets.symmetric(
-            vertical: 10,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 10),
 
           decoration: BoxDecoration(
+            gradient: isSelected
+                ? const LinearGradient(
+                    colors: [Color(0xFF2E7D32), Color(0xFF43A047)],
 
-            gradient:
-                isSelected
+                    begin: Alignment.topLeft,
 
-                    ? const LinearGradient(
+                    end: Alignment.bottomRight,
+                  )
+                : null,
 
-                        colors: [
+            color: isSelected ? null : Colors.transparent,
 
-                          Color(
-                            0xFF2E7D32,
-                          ),
-
-                          Color(
-                            0xFF43A047,
-                          ),
-                        ],
-
-                        begin:
-                            Alignment
-                                .topLeft,
-
-                        end:
-                            Alignment
-                                .bottomRight,
-                      )
-
-                    : null,
-
-            color:
-                isSelected
-                    ? null
-                    : Colors.transparent,
-
-            borderRadius:
-                BorderRadius.circular(
-              30,
-            ),
+            borderRadius: BorderRadius.circular(30),
           ),
 
           child: Center(
-
             child: Text(
-
               type,
 
               style: TextStyle(
-
-                color:
-                    isSelected
-                        ? Colors.white
-                        : Colors.black,
+                color: isSelected ? Colors.white : Colors.black,
 
                 fontSize: 12,
 
-                fontWeight:
-                    FontWeight.w700,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -953,9 +591,7 @@ class _AddTransactionScreenState
   }
 
   Widget modernTextField({
-
-    required TextEditingController
-        controller,
+    required TextEditingController controller,
 
     required String hint,
 
@@ -967,59 +603,34 @@ class _AddTransactionScreenState
 
     TextInputType? keyboardType,
   }) {
-
     return Container(
-
-      padding:
-          const EdgeInsets.symmetric(
-
-        horizontal: 16,
-
-        vertical: 2,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
 
       decoration: BoxDecoration(
-
         color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          20,
-        ),
+        borderRadius: BorderRadius.circular(20),
       ),
 
       child: TextField(
-
         controller: controller,
 
         maxLines: maxLines,
 
-        keyboardType:
-            keyboardType,
+        keyboardType: keyboardType,
 
         decoration: InputDecoration(
-
           border: InputBorder.none,
 
-          icon: Icon(
-
-            icon,
-
-            color: iconColor,
-
-            size: 22,
-          ),
+          icon: Icon(icon, color: iconColor, size: 22),
 
           hintText: hint,
 
           hintStyle: TextStyle(
-
-            color:
-                Colors.grey.shade500,
+            color: Colors.grey.shade500,
 
             fontSize: 13,
-            fontWeight:
-           FontWeight.w500,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
@@ -1027,7 +638,6 @@ class _AddTransactionScreenState
   }
 
   Widget modernDropdown<T>({
-
     required IconData icon,
 
     required Color iconColor,
@@ -1036,37 +646,20 @@ class _AddTransactionScreenState
 
     required T? value,
 
-    required List<
-            DropdownMenuItem<T>>
-        items,
+    required List<DropdownMenuItem<T>> items,
 
-    required Function(T?)
-        onChanged,
+    required Function(T?) onChanged,
   }) {
-
     return Container(
-
-      padding:
-          const EdgeInsets.symmetric(
-
-        horizontal: 16,
-
-        vertical: 2,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
 
       decoration: BoxDecoration(
-
         color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          20,
-        ),
+        borderRadius: BorderRadius.circular(20),
       ),
 
-      child:
-          DropdownButtonFormField<T>(
-
+      child: DropdownButtonFormField<T>(
         value: value,
 
         items: items,
@@ -1074,26 +667,16 @@ class _AddTransactionScreenState
         onChanged: onChanged,
 
         decoration: InputDecoration(
-
           border: InputBorder.none,
 
-          icon: Icon(
-
-            icon,
-
-            color: iconColor,
-          ),
+          icon: Icon(icon, color: iconColor),
 
           hintText: hint,
 
           hintStyle: TextStyle(
-
-            color:
-                Colors.grey.shade500,
-fontSize: 13,
-            fontWeight:
-    FontWeight.w500,
-    
+            color: Colors.grey.shade500,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
@@ -1101,7 +684,6 @@ fontSize: 13,
   }
 
   Widget firestoreDropdown({
-
     required String collection,
 
     required String label,
@@ -1112,86 +694,50 @@ fontSize: 13,
 
     required String? value,
 
-    required Function(
-      String id,
-      String name,
-    )
-    onChanged,
+    required Function(String id, String name) onChanged,
   }) {
-
     return StreamBuilder<QuerySnapshot>(
-
-      stream:
-          FirebaseFirestore.instance
-              .collection(collection)
-              .snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection(collection)
+          .where('workspaceId', isEqualTo: WorkspaceContext.currentWorkspaceId)
+          .snapshots(),
 
       builder: (context, snapshot) {
-
         if (!snapshot.hasData) {
-
-          return const Center(
-            child:
-                CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
-        final docs =
-            snapshot.data!.docs;
+        final docs = snapshot.data!.docs;
 
         return modernDropdown<String>(
-
           icon: icon,
 
-          iconColor:
-              iconColor,
+          iconColor: iconColor,
 
           hint: label,
 
           value: value,
 
-          items:
-              docs.map((doc) {
-
-            final data =
-                doc.data()
-                    as Map<String,
-                        dynamic>;
+          items: docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
 
             return DropdownMenuItem<String>(
-
               value: doc.id,
 
-              child: Text(
-                data['title'],
-              ),
+              child: Text(data['title']),
             );
-
           }).toList(),
 
           onChanged: (value) {
-
             if (value == null) {
               return;
             }
 
-            final selectedDoc =
-                docs.firstWhere(
-              (doc) =>
-                  doc.id == value,
-            );
+            final selectedDoc = docs.firstWhere((doc) => doc.id == value);
 
-            final selectedData =
-                selectedDoc.data()
-                    as Map<String,
-                        dynamic>;
+            final selectedData = selectedDoc.data() as Map<String, dynamic>;
 
-            onChanged(
-
-              selectedDoc.id,
-
-              selectedData['title'],
-            );
+            onChanged(selectedDoc.id, selectedData['title']);
           },
         );
       },

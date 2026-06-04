@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:money_tracker/services/workspace/workspace_context.dart';
 
 import 'monthly_insight_helper.dart';
 
@@ -10,6 +11,7 @@ class MonthlyDashboardService {
   ) async {
     final snapshot = await FirebaseFirestore.instance
         .collection('transactions')
+        .where('workspaceId', isEqualTo: WorkspaceContext.currentWorkspaceId)
         .get();
 
     // =========================
@@ -26,9 +28,7 @@ class MonthlyDashboardService {
     // PERSON SPENDING
     // =========================
 
-    double eswarSpent = 0;
-
-    double lathaSpent = 0;
+    final Map<String, double> personSpent = {};
 
     // =========================
     // ACCOUNT ANALYSIS
@@ -132,19 +132,11 @@ class MonthlyDashboardService {
       // =====================
 
       if (type == 'Expense') {
-        if (person == 'Eswar') {
-          eswarSpent += amount;
-        }
-
-        if (person == 'Latha') {
-          lathaSpent += amount;
-        }
-
-        if (person == 'Both') {
-          eswarSpent += amount / 2;
-
-          lathaSpent += amount / 2;
-        }
+        personSpent.update(
+          person,
+          (value) => value + amount,
+          ifAbsent: () => amount,
+        );
       }
 
       // =====================
@@ -286,9 +278,7 @@ class MonthlyDashboardService {
       'savingsRate': savingsRate,
 
       // PERSON
-      'eswarSpent': eswarSpent,
-
-      'lathaSpent': lathaSpent,
+      'personSpent': personSpent,
 
       // ACCOUNTS
       'accounts': accountSpent.entries.toList(),

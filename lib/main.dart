@@ -7,426 +7,268 @@ import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/transactions/transactions_screen.dart';
 import 'screens/transactions/add_transaction_screen.dart';
 import 'constants/firestore_collections.dart';
-import 'screens/setup/generic_setup_screen.dart';
-import 'screens/setup/payment_methods_screen.dart';
+import 'screens/setup/categories/generic_setup_screen.dart';
+import 'screens/setup/payment_methods/payment_methods_screen.dart';
+import 'screens/auth/auth_gate.dart';
 // import 'dev/import_data_screen.dart';
 // import 'dev/import_transactions_screen.dart';
 
 void main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-    options:
-        DefaultFirebaseOptions
-            .currentPlatform,
-  );
-
-  runApp(
-    const MoneyTrackerApp(),
-  );
+  runApp(const MoneyTrackerApp());
 }
 
-class MoneyTrackerApp
-    extends StatelessWidget {
-
-  const MoneyTrackerApp({
-    super.key,
-  });
+class MoneyTrackerApp extends StatelessWidget {
+  const MoneyTrackerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
-
-      debugShowCheckedModeBanner:
-          false,
+      debugShowCheckedModeBanner: false,
 
       title: 'Money Tracker',
 
       theme: ThemeData(
+        primarySwatch: Colors.green,
 
-        primarySwatch:
-            Colors.green,
+        scaffoldBackgroundColor: const Color(0xFFF5F6FA),
 
-        scaffoldBackgroundColor:
-            const Color(
-          0xFFF5F6FA,
-        ),
-
-        appBarTheme:
-            const AppBarTheme(
-
-          backgroundColor:
-              Colors.white,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
 
           elevation: 0,
 
           centerTitle: true,
 
-          iconTheme: IconThemeData(
-            color: Colors.black,
-          ),
+          iconTheme: IconThemeData(color: Colors.black),
 
-          titleTextStyle:
-              TextStyle(
-
+          titleTextStyle: TextStyle(
             color: Colors.black,
 
             fontSize: 20,
 
-            fontWeight:
-                FontWeight.w600,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
 
       home:
-          const MainNavigationScreen(), //MainNavigationScreen(),//ImportDataScreen(),//ImportIncomeScreen(),
+          const AuthGate(), //MainNavigationScreen(),//ImportDataScreen(),//ImportIncomeScreen(),//AuthGate(),
     );
   }
 }
 
-class MainNavigationScreen
-    extends StatefulWidget {
-
-  const MainNavigationScreen({
-    super.key,
-  });
+class MainNavigationScreen extends StatefulWidget {
+  const MainNavigationScreen({super.key});
 
   @override
-  State<MainNavigationScreen>
-      createState() =>
-          _MainNavigationScreenState();
+  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _MainNavigationScreenState
-    extends State<
-        MainNavigationScreen> {
-
+class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int selectedIndex = 0;
 
   final List<Widget> screens = [
-
     const DashboardScreen(),
 
     const TransactionsScreen(),
   ];
 
-  Future<void> onTabTapped(
-    int index,
-  ) async {
-
+  Future<void> onTabTapped(int index) async {
     // ADD TRANSACTION
     if (index == 1) {
-
       await Navigator.push(
-
         context,
 
-        MaterialPageRoute(
-
-          builder: (_) =>
-              const AddTransactionScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => const AddTransactionScreen()),
       );
 
       return;
     }
 
     setState(() {
-
-      selectedIndex =
-          index > 1
-              ? index - 1
-              : index;
+      selectedIndex = index > 1 ? index - 1 : index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-
       drawer: const AppDrawer(),
 
       body: screens[selectedIndex],
 
- bottomNavigationBar: Container(
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
 
-  margin: const EdgeInsets.only(
-    left: 16,
-    right: 16,
-    bottom: 16,
-  ),
+        decoration: BoxDecoration(
+          color: Colors.white,
 
-  decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
 
-    color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
 
-    borderRadius:
-        BorderRadius.circular(30),
+              blurRadius: 10,
 
-    boxShadow: [
-
-      BoxShadow(
-
-        color:
-            Colors.black.withOpacity(
-          0.05,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
 
-        blurRadius: 10,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
 
-        offset: const Offset(0, 4),
+          child: BottomNavigationBar(
+            currentIndex: selectedIndex == 0 ? 0 : 2,
+
+            onTap: onTabTapped,
+
+            backgroundColor: Colors.white,
+
+            elevation: 0,
+
+            type: BottomNavigationBarType.fixed,
+
+            selectedItemColor: Colors.green,
+
+            unselectedItemColor: Colors.grey,
+
+            selectedFontSize: 12,
+
+            unselectedFontSize: 12,
+
+            items: const [
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(top: 6),
+
+                  child: Icon(Icons.home),
+                ),
+
+                label: 'Home',
+              ),
+
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(top: 6),
+
+                  child: Icon(Icons.add_circle, size: 34),
+                ),
+
+                label: 'Add',
+              ),
+
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(top: 6),
+
+                  child: Icon(Icons.receipt_long),
+                ),
+
+                label: 'Transactions',
+              ),
+            ],
+          ),
+        ),
       ),
-    ],
-  ),
-
-  child: ClipRRect(
-
-    borderRadius:
-        BorderRadius.circular(30),
-
-    child: BottomNavigationBar(
-
-      currentIndex:
-          selectedIndex == 0
-              ? 0
-              : 2,
-
-      onTap: onTabTapped,
-
-      backgroundColor:
-          Colors.white,
-
-      elevation: 0,
-
-      type:
-          BottomNavigationBarType.fixed,
-
-      selectedItemColor:
-          Colors.green,
-
-      unselectedItemColor:
-          Colors.grey,
-
-      selectedFontSize: 12,
-
-      unselectedFontSize: 12,
-
-      items: const [
-
-        BottomNavigationBarItem(
-
-          icon: Padding(
-
-            padding:
-                EdgeInsets.only(top: 6),
-
-            child: Icon(Icons.home),
-          ),
-
-          label: 'Home',
-        ),
-
-        BottomNavigationBarItem(
-
-          icon: Padding(
-
-            padding:
-                EdgeInsets.only(top: 6),
-
-            child: Icon(
-              Icons.add_circle,
-              size: 34,
-            ),
-          ),
-
-          label: 'Add',
-        ),
-
-        BottomNavigationBarItem(
-
-          icon: Padding(
-
-            padding:
-                EdgeInsets.only(top: 6),
-
-            child: Icon(
-              Icons.receipt_long,
-            ),
-          ),
-
-          label: 'Transactions',
-        ),
-      ],
-    ),
-  ),
-),
     );
   }
 }
 
-class AppDrawer
-    extends StatelessWidget {
-
-  const AppDrawer({
-    super.key,
-  });
+class AppDrawer extends StatelessWidget {
+  const AppDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     return Drawer(
-
-      backgroundColor:
-          const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF5F6FA),
 
       child: SafeArea(
-
         child: Column(
-
           children: [
-
             // TOP HEADER
             Container(
-
               width: double.infinity,
 
-              margin:
-                  const EdgeInsets.all(
-                16,
-              ),
+              margin: const EdgeInsets.all(16),
 
-              padding:
-                  const EdgeInsets.all(
-                22,
-              ),
+              padding: const EdgeInsets.all(22),
 
               decoration: BoxDecoration(
-
-                gradient:
-                    const LinearGradient(
-
-                  colors: [
-                    Color(0xFF1DBF73),
-                    Color(0xFF17A866),
-                  ],
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1DBF73), Color(0xFF17A866)],
                 ),
 
-                borderRadius:
-                    BorderRadius.circular(
-                  28,
-                ),
+                borderRadius: BorderRadius.circular(28),
               ),
 
               child: const Column(
-
-                crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
-
                   CircleAvatar(
-
                     radius: 28,
 
-                    backgroundColor:
-                        Colors.white,
+                    backgroundColor: Colors.white,
 
-                    child: Icon(
-
-                      Icons.wallet,
-
-                      color:
-                          Colors.green,
-
-                      size: 30,
-                    ),
+                    child: Icon(Icons.wallet, color: Colors.green, size: 30),
                   ),
 
                   SizedBox(height: 18),
 
                   Text(
-
                     'Money Tracker',
 
                     style: TextStyle(
-
-                      color:
-                          Colors.white,
+                      color: Colors.white,
 
                       fontSize: 24,
 
-                      fontWeight:
-                          FontWeight.bold,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
 
                   SizedBox(height: 6),
 
                   Text(
-
                     'Track every rupee smartly',
 
-                    style: TextStyle(
-                      color:
-                          Colors.white70,
-                    ),
+                    style: TextStyle(color: Colors.white70),
                   ),
                 ],
               ),
             ),
 
             Expanded(
-
               child: ListView(
-
-                padding:
-                    const EdgeInsets
-                        .symmetric(
-                  horizontal: 14,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
 
                 children: [
-
-                  drawerSectionTitle(
-                    'SETUP',
-                  ),
+                  drawerSectionTitle('SETUP'),
 
                   drawerTile(
-
                     context,
 
-                    icon:
-                        Icons.money_off,
+                    icon: Icons.money_off,
 
-                    title:
-                        'Expense Categories',
+                    title: 'Expense Categories',
 
                     onTap: () {
-
                       Navigator.push(
-
                         context,
 
                         MaterialPageRoute(
+                          builder: (_) => GenericSetupScreen(
+                            title: 'Expense Categories',
 
-                          builder: (_) =>
-                              GenericSetupScreen(
+                            collection: FirestoreCollections.expenseCategories,
 
-                            title:
-                                'Expense Categories',
-
-                            collection:
-                                FirestoreCollections
-                                    .expenseCategories,
-
-                            hasDetails:
-                                true,
+                            hasDetails: true,
                           ),
                         ),
                       );
@@ -434,35 +276,23 @@ class AppDrawer
                   ),
 
                   drawerTile(
-
                     context,
 
-                    icon:
-                        Icons.savings,
+                    icon: Icons.savings,
 
-                    title:
-                        'Income Categories',
+                    title: 'Income Categories',
 
                     onTap: () {
-
                       Navigator.push(
-
                         context,
 
                         MaterialPageRoute(
+                          builder: (_) => GenericSetupScreen(
+                            title: 'Income Categories',
 
-                          builder: (_) =>
-                              GenericSetupScreen(
+                            collection: FirestoreCollections.incomeCategories,
 
-                            title:
-                                'Income Categories',
-
-                            collection:
-                                FirestoreCollections
-                                    .incomeCategories,
-
-                            hasDetails:
-                                true,
+                            hasDetails: true,
                           ),
                         ),
                       );
@@ -470,35 +300,23 @@ class AppDrawer
                   ),
 
                   drawerTile(
-
                     context,
 
-                    icon:
-                        Icons.compare_arrows,
+                    icon: Icons.compare_arrows,
 
-                    title:
-                        'Transfer Categories',
+                    title: 'Transfer Categories',
 
                     onTap: () {
-
                       Navigator.push(
-
                         context,
 
                         MaterialPageRoute(
+                          builder: (_) => GenericSetupScreen(
+                            title: 'Transfer Categories',
 
-                          builder: (_) =>
-                              GenericSetupScreen(
+                            collection: FirestoreCollections.transferCategories,
 
-                            title:
-                                'Transfer Categories',
-
-                            collection:
-                                FirestoreCollections
-                                    .transferCategories,
-
-                            hasDetails:
-                                true,
+                            hasDetails: true,
                           ),
                         ),
                       );
@@ -506,57 +324,39 @@ class AppDrawer
                   ),
 
                   drawerTile(
-
                     context,
 
-                    icon:
-                        Icons.credit_card,
+                    icon: Icons.credit_card,
 
-                    title:
-                        'Payment Methods',
+                    title: 'Payment Methods',
 
                     onTap: () {
-
                       Navigator.push(
-
                         context,
 
                         MaterialPageRoute(
-
-                          builder: (_) =>
-                              const PaymentMethodsScreen(),
+                          builder: (_) => const PaymentMethodsScreen(),
                         ),
                       );
                     },
                   ),
 
                   drawerTile(
-
                     context,
 
-                    icon:
-                        Icons.people_alt_outlined,
+                    icon: Icons.people_alt_outlined,
 
-                    title:
-                        'Persons',
+                    title: 'Persons',
 
                     onTap: () {
-
                       Navigator.push(
-
                         context,
 
                         MaterialPageRoute(
+                          builder: (_) => GenericSetupScreen(
+                            title: 'Persons',
 
-                          builder: (_) =>
-                              GenericSetupScreen(
-
-                            title:
-                                'Persons',
-
-                            collection:
-                                FirestoreCollections
-                                    .persons,
+                            collection: FirestoreCollections.persons,
                           ),
                         ),
                       );
@@ -564,68 +364,47 @@ class AppDrawer
                   ),
 
                   drawerTile(
-
                     context,
 
-                    icon:
-                        Icons.sell_outlined,
+                    icon: Icons.sell_outlined,
 
-                    title:
-                        'Tags',
+                    title: 'Tags',
 
                     onTap: () {
-
                       Navigator.push(
-
                         context,
 
                         MaterialPageRoute(
+                          builder: (_) => GenericSetupScreen(
+                            title: 'Tags',
 
-                          builder: (_) =>
-                              GenericSetupScreen(
-
-                            title:
-                                'Tags',
-
-                            collection:
-                                FirestoreCollections
-                                    .tags,
+                            collection: FirestoreCollections.tags,
                           ),
                         ),
                       );
                     },
                   ),
 
-                  const SizedBox(
-                    height: 26,
-                  ),
+                  const SizedBox(height: 26),
 
-                  drawerSectionTitle(
-                    'MORE',
-                  ),
+                  drawerSectionTitle('MORE'),
 
                   drawerTile(
-
                     context,
 
-                    icon:
-                        Icons.settings_outlined,
+                    icon: Icons.settings_outlined,
 
-                    title:
-                        'Settings',
+                    title: 'Settings',
 
                     onTap: () {},
                   ),
 
                   drawerTile(
-
                     context,
 
-                    icon:
-                        Icons.backup_outlined,
+                    icon: Icons.backup_outlined,
 
-                    title:
-                        'Backup & Export',
+                    title: 'Backup & Export',
 
                     onTap: () {},
                   ),
@@ -638,29 +417,17 @@ class AppDrawer
     );
   }
 
-  Widget drawerSectionTitle(
-    String title,
-  ) {
-
+  Widget drawerSectionTitle(String title) {
     return Padding(
-
-      padding:
-          const EdgeInsets.only(
-        left: 14,
-        bottom: 10,
-        top: 10,
-      ),
+      padding: const EdgeInsets.only(left: 14, bottom: 10, top: 10),
 
       child: Text(
-
         title,
 
         style: TextStyle(
-
           color: Colors.grey.shade600,
 
-          fontWeight:
-              FontWeight.bold,
+          fontWeight: FontWeight.bold,
 
           letterSpacing: 1.2,
         ),
@@ -669,7 +436,6 @@ class AppDrawer
   }
 
   Widget drawerTile(
-
     BuildContext context, {
 
     required IconData icon,
@@ -678,38 +444,21 @@ class AppDrawer
 
     required VoidCallback onTap,
   }) {
-
     return Container(
-
-      margin:
-          const EdgeInsets.only(
-        bottom: 10,
-      ),
+      margin: const EdgeInsets.only(bottom: 10),
 
       decoration: BoxDecoration(
-
         color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          18,
-        ),
+        borderRadius: BorderRadius.circular(18),
       ),
 
       child: ListTile(
+        leading: Icon(icon, color: Colors.green),
 
-        leading: Icon(
-          icon,
-          color: Colors.green,
-        ),
+        title: Text(title),
 
-        title: Text(
-          title,
-        ),
-
-        trailing: const Icon(
-          Icons.chevron_right,
-        ),
+        trailing: const Icon(Icons.chevron_right),
 
         onTap: onTap,
       ),

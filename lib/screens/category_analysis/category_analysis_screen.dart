@@ -292,7 +292,30 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          actionButton(Icons.refresh_rounded),
+                          InkWell(
+                            onTap: () async {
+                              setState(() {
+                                selectedStartDate = DateTime(
+                                  DateTime.now().year,
+                                  DateTime.now().month,
+                                  1,
+                                );
+
+                                selectedEndDate = DateTime.now();
+
+                                selectedPerson = 'All';
+
+                                selectedType = 'Expense';
+
+                                showAllCategories = false;
+
+                                showAllCategoryCards = false;
+                              });
+
+                              await loadData();
+                            },
+                            child: actionButton(Icons.refresh_rounded),
+                          ),
                           const SizedBox(width: 12),
                           actionButton(Icons.tune_rounded),
                         ],
@@ -418,7 +441,8 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                           subtitle1:
                               ((data?['nextTopCategories'] as List?) ?? [])
                                   .isNotEmpty
-                              ? (data?['nextTopCategories'] as List).first + ' •'
+                              ? (data?['nextTopCategories'] as List).first +
+                                    ' •'
                               : '-',
                           subtitle2:
                               ((data?['nextTopCategories'] as List?) ?? [])

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:money_tracker/services/workspace/workspace_context.dart';
 import '../../../constants/firestore_collections.dart';
 import 'category_insights_generator.dart';
 
@@ -80,6 +81,7 @@ class CategoryAnalysisService {
   }) async {
     final expenseSnapshot = await firestore
         .collection(FirestoreCollections.transactions)
+        .where('workspaceId', isEqualTo: WorkspaceContext.currentWorkspaceId)
         .get();
     Map<String, double> categoryTotals = {};
     Map<String, double> detailTotals = {};

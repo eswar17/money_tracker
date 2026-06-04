@@ -1,14 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:money_tracker/widgets/menu_button.dart';
 
 import '../../constants/firestore_collections.dart';
 
 import '../../models/filter_model.dart';
 import '../../models/transaction_model.dart';
-
+import '../../services/auth/workspace_service.dart';
 import '../../services/transactions/transaction_service.dart';
-import '../../core/helpers/category_icon_helper.dart';
 import 'add_transaction_screen.dart';
+import './widgets/transaction_summary_card.dart';
+import './widgets/transaction_filters.dart';
+import '../../widgets/app_drawer.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_text_styles.dart';
+import '../../theme/app_spacing.dart';
+import '../../constants/app_strings.dart';
+
+import './widgets/transaction_card.dart';
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({super.key});
@@ -28,34 +37,47 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   FilterModel currentFilter = const FilterModel();
 
-  String selectedType = 'All';
-
-  String selectedCategory = 'All';
-
-  String selectedDetail = 'All';
-
-  String selectedPerson = 'All';
-
-  String selectedPayment = 'All';
-
-  String selectedTag = 'All';
+  String selectedType = AppStrings.all;
+  String selectedCategory = AppStrings.all;
+  String selectedDetail = AppStrings.all;
+  String selectedPerson = AppStrings.all;
+  String selectedPayment = AppStrings.all;
+  String selectedTag = AppStrings.all;
+  String? workspaceId;
 
   List<String> details = [];
 
   String? get categoryCollection {
     switch (selectedType) {
-      case 'Income':
+      case AppStrings.income:
         return FirestoreCollections.incomeCategories;
 
-      case 'Transfer':
+      case AppStrings.transfer:
         return FirestoreCollections.transferCategories;
 
-      case 'Expense':
+      case AppStrings.expense:
         return FirestoreCollections.expenseCategories;
 
       default:
         return null;
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadWorkspace();
+  }
+
+  Future<void> loadWorkspace() async {
+    final id = await WorkspaceService.getCurrentWorkspaceId();
+
+    print('WORKSPACE ID: $id');
+
+    setState(() {
+      workspaceId = id;
+    });
   }
 
   Future<void> loadDetails(String categoryId) async {
@@ -71,7 +93,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     final data = doc.data() as Map<String, dynamic>;
 
     setState(() {
-      details = ['All', ...List<String>.from(data['details'] ?? [])];
+      details = [
+        AppStrings.all,
+        ...List<String>.from(data[AppStrings.details] ?? []),
+      ];
     });
   }
 
@@ -123,17 +148,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     setState(() {
       currentFilter = const FilterModel();
 
-      selectedType = 'All';
+      selectedType = AppStrings.all;
 
-      selectedCategory = 'All';
+      selectedCategory = AppStrings.all;
 
-      selectedDetail = 'All';
+      selectedDetail = AppStrings.all;
 
-      selectedPerson = 'All';
+      selectedPerson = AppStrings.all;
 
-      selectedPayment = 'All';
+      selectedPayment = AppStrings.all;
 
-      selectedTag = 'All';
+      selectedTag = AppStrings.all;
 
       details = [];
     });
@@ -144,32 +169,34 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   ) {
     return transactions.where((t) {
       // TYPE
-      if (selectedType != 'All' && t.type != selectedType) {
+      if (selectedType != AppStrings.all && t.type != selectedType) {
         return false;
       }
 
       // CATEGORY
-      if (selectedCategory != 'All' && t.categoryId != selectedCategory) {
+      if (selectedCategory != AppStrings.all &&
+          t.categoryId != selectedCategory) {
         return false;
       }
 
       // DETAIL
-      if (selectedDetail != 'All' && t.detail != selectedDetail) {
+      if (selectedDetail != AppStrings.all && t.detail != selectedDetail) {
         return false;
       }
 
       // PERSON
-      if (selectedPerson != 'All' && t.personId != selectedPerson) {
+      if (selectedPerson != AppStrings.all && t.personId != selectedPerson) {
         return false;
       }
 
       // PAYMENT
-      if (selectedPayment != 'All' && t.paymentMethodId != selectedPayment) {
+      if (selectedPayment != AppStrings.all &&
+          t.paymentMethodId != selectedPayment) {
         return false;
       }
 
       // TAG
-      if (selectedTag != 'All' && t.tagId != selectedTag) {
+      if (selectedTag != AppStrings.all && t.tagId != selectedTag) {
         return false;
       }
 
@@ -223,814 +250,351 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     return Scaffold(
       key: scaffoldKey,
 
-      backgroundColor: const Color(0xFFF8F9FB),
+      backgroundColor: AppColors.background,
+
+      drawer: const AppDrawer(),
 
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9FB),
+        backgroundColor: AppColors.background,
 
         elevation: 0,
 
-        leading: IconButton(
-          onPressed: () {
+        leading: MenuButton(
+          onTap: () {
             scaffoldKey.currentState?.openDrawer();
           },
-
-          icon: const Icon(Icons.menu_rounded, color: Colors.black),
         ),
 
         centerTitle: true,
 
-        title: const Text(
-          'All Transactions',
-
-          style: TextStyle(
-            color: Colors.black,
-
-            fontWeight: FontWeight.w700,
-
-            fontSize: 22,
-          ),
-        ),
+        title: Text(AppStrings.allTransactions, style: AppTextStyles.heading3),
       ),
 
-      body: StreamBuilder<List<TransactionModel>>(
-        stream: transactionService.getTransactions(),
+      body: workspaceId == null
+          ? const Center(child: CircularProgressIndicator())
+          : StreamBuilder<List<TransactionModel>>(
+              stream: transactionService.getTransactions(workspaceId!),
 
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+              builder: (context, snapshot) {
+                print('========================');
+                print('WORKSPACE: $workspaceId');
+                print('HAS ERROR: ${snapshot.hasError}');
+                print('ERROR: ${snapshot.error}');
+                print('HAS DATA: ${snapshot.hasData}');
+                print('DOC COUNT: ${snapshot.data?.length}');
+                print('STATE: ${snapshot.connectionState}');
+                print('========================');
 
-          if (!snapshot.hasData) {
-            return const SizedBox();
-          }
-
-          return ValueListenableBuilder(
-            valueListenable: searchNotifier,
-
-            builder: (context, _, __) {
-              final transactions = applyLocalFilters(snapshot.data!);
-
-              double income = 0;
-              double expense = 0;
-              double transfer = 0;
-
-              for (final t in transactions) {
-                if (t.type == 'Income') {
-                  income += t.amount;
-                } else if (t.type == 'Expense') {
-                  expense += t.amount;
-                } else {
-                  transfer += t.amount;
+                if (snapshot.hasError) {
+                  return Center(child: Text(snapshot.error.toString()));
                 }
-              }
 
-              return Column(
-                children: [
-                  // SEARCH
-                  Padding(
-                    padding: const EdgeInsets.only(left: 14, right: 14, top: 8),
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-                    child: Container(
-                      height: 42,
+                if (!snapshot.hasData) {
+                  return const Center(child: Text('No Data'));
+                }
+                // if (!snapshot.hasData) {
+                //   return const SizedBox();
+                // }
 
-                      decoration: BoxDecoration(
-                        color: Colors.white,
+                return ValueListenableBuilder(
+                  valueListenable: searchNotifier,
 
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                  builder: (context, _, __) {
+                    final transactions = applyLocalFilters(snapshot.data!);
 
-                      child: TextField(
-                        controller: searchController,
+                    double income = 0;
+                    double expense = 0;
+                    double transfer = 0;
 
-                        onChanged: (value) {
-                          currentFilter = currentFilter.copyWith(
-                            searchText: value,
-                          );
+                    for (final t in transactions) {
+                      if (t.type == AppStrings.income) {
+                        income += t.amount;
+                      } else if (t.type == AppStrings.expense) {
+                        expense += t.amount;
+                      } else {
+                        transfer += t.amount;
+                      }
+                    }
 
-                          searchNotifier.value = value;
-                        },
-
-                        style: const TextStyle(fontSize: 13),
-
-                        decoration: const InputDecoration(
-                          hintText: 'Search transactions',
-
-                          prefixIcon: Icon(Icons.search, size: 20),
-
-                          border: InputBorder.none,
-
-                          contentPadding: EdgeInsets.only(top: 10),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // FILTERS
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-
-                    child: Column(
+                    return Column(
                       children: [
-                        Row(
-                          children: [
-                            Expanded(child: typeDropdown()),
+                        // SEARCH
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: AppSpacing.md,
+                            right: AppSpacing.md,
+                            top: AppSpacing.xs,
+                          ),
 
-                            const SizedBox(width: 6),
+                          child: Container(
+                            height: 42,
 
-                            Expanded(child: categoryDropdown()),
+                            decoration: BoxDecoration(
+                              color: AppColors.card,
 
-                            const SizedBox(width: 6),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
 
-                            Expanded(child: detailDropdown()),
+                            child: TextField(
+                              controller: searchController,
 
-                            const SizedBox(width: 6),
+                              onChanged: (value) {
+                                currentFilter = currentFilter.copyWith(
+                                  searchText: value,
+                                );
 
-                            Expanded(child: personDropdown()),
-                          ],
+                                searchNotifier.value = value;
+                              },
+
+                              style: AppTextStyles.bodyMedium,
+
+                              decoration: const InputDecoration(
+                                hintText: AppStrings.searchTransactions,
+
+                                prefixIcon: Icon(Icons.search, size: 20),
+
+                                border: InputBorder.none,
+
+                                contentPadding: EdgeInsets.only(top: 10),
+                              ),
+                            ),
+                          ),
                         ),
 
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 10),
 
-                        Row(
-                          children: [
-                            Expanded(child: paymentDropdown()),
+                        // FILTERS
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
 
-                            const SizedBox(width: 6),
+                          child: TransactionFilters(
+                            selectedType: selectedType,
 
-                            Expanded(
-                              child: dateBox(
-                                label: currentFilter.startDate != null
-                                    ? '${currentFilter.startDate!.day}/${currentFilter.startDate!.month}'
-                                    : 'From',
+                            selectedCategory: selectedCategory,
 
-                                onTap: pickStartDate,
+                            selectedDetail: selectedDetail,
+
+                            selectedPerson: selectedPerson,
+
+                            selectedPayment: selectedPayment,
+
+                            selectedTag: selectedTag,
+
+                            categoryCollection: categoryCollection,
+
+                            details: details,
+
+                            startDate: currentFilter.startDate,
+
+                            endDate: currentFilter.endDate,
+
+                            onStartDateTap: pickStartDate,
+
+                            onEndDateTap: pickEndDate,
+
+                            onClearFilters: clearFilters,
+
+                            onTypeChanged: (value) {
+                              setState(() {
+                                selectedType = value;
+
+                                selectedCategory = AppStrings.all;
+
+                                selectedDetail = AppStrings.all;
+
+                                details = [];
+                              });
+                            },
+
+                            onCategoryChanged: (value) {
+                              if (value == AppStrings.all) {
+                                setState(() {
+                                  selectedCategory = AppStrings.all;
+
+                                  selectedDetail = AppStrings.all;
+
+                                  details = [];
+                                });
+
+                                return;
+                              }
+
+                              setState(() {
+                                selectedCategory = value;
+                              });
+
+                              loadDetails(value);
+                            },
+
+                            onDetailChanged: (value) {
+                              setState(() {
+                                selectedDetail = value;
+                              });
+                            },
+
+                            onPersonChanged: (value) {
+                              setState(() {
+                                selectedPerson = value;
+                              });
+                            },
+
+                            onPaymentChanged: (value) {
+                              setState(() {
+                                selectedPayment = value;
+                              });
+                            },
+
+                            onTagChanged: (value) {
+                              setState(() {
+                                selectedTag = value;
+                              });
+                            },
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // SUMMARY
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TransactionSummaryCard(
+                                  title: AppStrings.income,
+
+                                  amount: income,
+
+                                  color: AppColors.income,
+                                ),
                               ),
-                            ),
 
-                            const SizedBox(width: 6),
+                              const SizedBox(width: 6),
 
-                            Expanded(
-                              child: dateBox(
-                                label: currentFilter.endDate != null
-                                    ? '${currentFilter.endDate!.day}/${currentFilter.endDate!.month}'
-                                    : 'To',
+                              Expanded(
+                                child: TransactionSummaryCard(
+                                  title: AppStrings.expense,
 
-                                onTap: pickEndDate,
+                                  amount: expense,
+
+                                  color: AppColors.expense,
+                                ),
                               ),
-                            ),
 
-                            const SizedBox(width: 6),
+                              const SizedBox(width: 6),
 
-                            Expanded(child: tagDropdown()),
-                          ],
+                              Expanded(
+                                child: TransactionSummaryCard(
+                                  title: AppStrings.transfer,
+
+                                  amount: transfer,
+
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
 
                         const SizedBox(height: 8),
 
-                        Align(
-                          alignment: Alignment.centerRight,
-
-                          child: GestureDetector(
-                            onTap: clearFilters,
-
-                            child: const Text(
-                              'Clear Filters',
-
-                              style: TextStyle(
-                                color: Colors.green,
-
-                                fontWeight: FontWeight.w600,
-
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // SUMMARY
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-
-                    child: Row(
-                      children: [
                         Expanded(
-                          child: summaryCard(
-                            title: 'Income',
+                          child: transactions.isEmpty
+                              ? const Center(
+                                  child: Text(AppStrings.noTransactionsFound),
+                                )
+                              : ListView.builder(
+                                  padding: const EdgeInsets.only(
+                                    left: 14,
+                                    right: 10,
+                                  ),
 
-                            amount: income,
+                                  itemCount: transactions.length,
 
-                            color: Colors.green,
-                          ),
-                        ),
+                                  itemBuilder: (context, index) {
+                                    final transaction = transactions[index];
 
-                        const SizedBox(width: 6),
+                                    final bool showDateHeader =
+                                        index == 0 ||
+                                        transactions[index].date.day !=
+                                            transactions[index - 1].date.day ||
+                                        transactions[index].date.month !=
+                                            transactions[index - 1]
+                                                .date
+                                                .month ||
+                                        transactions[index].date.year !=
+                                            transactions[index - 1].date.year;
 
-                        Expanded(
-                          child: summaryCard(
-                            title: 'Expense',
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
 
-                            amount: expense,
+                                      children: [
+                                        if (showDateHeader)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 10,
+                                              bottom: 6,
+                                            ),
 
-                            color: Colors.red,
-                          ),
-                        ),
+                                            child: Text(
+                                              '${transaction.date.day}/${transaction.date.month}/${transaction.date.year}',
 
-                        const SizedBox(width: 6),
+                                              style: const TextStyle(
+                                                fontSize: 16,
 
-                        Expanded(
-                          child: summaryCard(
-                            title: 'Transfer',
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
 
-                            amount: transfer,
+                                        TransactionCard(
+                                          transaction: transaction,
 
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                                          onEdit: () async {
+                                            final result = await Navigator.push(
+                                              context,
 
-                  const SizedBox(height: 8),
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    AddTransactionScreen(
+                                                      transactionId:
+                                                          transaction.id,
 
-                  Expanded(
-                    child: transactions.isEmpty
-                        ? const Center(child: Text('No Transactions Found'))
-                        : ListView.builder(
-                            padding: const EdgeInsets.only(left: 14, right: 10),
+                                                      transactionData:
+                                                          transaction.toMap(),
+                                                    ),
+                                              ),
+                                            );
 
-                            itemCount: transactions.length,
+                                            if (result == true) {
+                                              setState(() {});
+                                            }
+                                          },
 
-                            itemBuilder: (context, index) {
-                              final transaction = transactions[index];
-
-                              final bool showDateHeader =
-                                  index == 0 ||
-                                  transactions[index].date.day !=
-                                      transactions[index - 1].date.day ||
-                                  transactions[index].date.month !=
-                                      transactions[index - 1].date.month ||
-                                  transactions[index].date.year !=
-                                      transactions[index - 1].date.year;
-
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-
-                                children: [
-                                  if (showDateHeader)
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: 10,
-                                        bottom: 6,
-                                      ),
-
-                                      child: Text(
-                                        '${transaction.date.day}/${transaction.date.month}/${transaction.date.year}',
-
-                                        style: const TextStyle(
-                                          fontSize: 16,
-
-                                          fontWeight: FontWeight.w700,
+                                          onDelete: () async {
+                                            await transactionService
+                                                .deleteTransaction(
+                                                  transaction.id,
+                                                );
+                                          },
                                         ),
-                                      ),
-                                    ),
-
-                                  transactionCard(transaction),
-                                ],
-                              );
-                            },
-                          ),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget compactBox({required Widget child}) {
-    return Container(
-      height: 38,
-
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-
-      decoration: BoxDecoration(
-        color: Colors.white,
-
-        borderRadius: BorderRadius.circular(10),
-      ),
-
-      child: child,
-    );
-  }
-
-  Widget typeDropdown() {
-    return compactBox(
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: selectedType,
-
-          isExpanded: true,
-
-          style: const TextStyle(color: Colors.black, fontSize: 11),
-
-          items: const [
-            DropdownMenuItem(value: 'All', child: Text('All')),
-
-            DropdownMenuItem(value: 'Expense', child: Text('Expense')),
-
-            DropdownMenuItem(value: 'Income', child: Text('Income')),
-
-            DropdownMenuItem(value: 'Transfer', child: Text('Transfer')),
-          ],
-
-          onChanged: (value) {
-            if (value == null) {
-              return;
-            }
-
-            setState(() {
-              selectedType = value;
-
-              selectedCategory = 'All';
-
-              selectedDetail = 'All';
-
-              details = [];
-            });
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget categoryDropdown() {
-    if (categoryCollection == null) {
-      return compactBox(
-        child: const Center(
-          child: Text(
-            'Category',
-
-            style: TextStyle(fontSize: 11, color: Colors.grey),
-          ),
-        ),
-      );
-    }
-
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection(categoryCollection!)
-          .snapshots(),
-
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return compactBox(child: const SizedBox());
-        }
-
-        final docs = snapshot.data!.docs;
-
-        return compactBox(
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: selectedCategory,
-
-              isExpanded: true,
-
-              style: const TextStyle(fontSize: 11, color: Colors.black),
-
-              items: [
-                const DropdownMenuItem(value: 'All', child: Text('All')),
-
-                ...docs.map((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
-
-                  return DropdownMenuItem<String>(
-                    value: doc.id,
-
-                    child: Text(
-                      data['title'],
-
-                      overflow: TextOverflow.ellipsis,
-
-                      style: const TextStyle(fontSize: 11),
-                    ),
-                  );
-                }),
-              ],
-
-              onChanged: (value) {
-                if (value == null) {
-                  return;
-                }
-
-                if (value == 'All') {
-                  setState(() {
-                    selectedCategory = 'All';
-
-                    selectedDetail = 'All';
-
-                    details = [];
-                  });
-
-                  return;
-                }
-
-                setState(() {
-                  selectedCategory = value;
-                });
-
-                loadDetails(value);
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget detailDropdown() {
-    return compactBox(
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: selectedDetail,
-
-          isExpanded: true,
-
-          style: const TextStyle(color: Colors.black, fontSize: 11),
-
-          items: details.isEmpty
-              ? const [DropdownMenuItem(value: 'All', child: Text('Detail'))]
-              : details.map((detail) {
-                  return DropdownMenuItem<String>(
-                    value: detail,
-
-                    child: Text(detail, style: const TextStyle(fontSize: 11)),
-                  );
-                }).toList(),
-
-          onChanged: (value) {
-            if (value == null) {
-              return;
-            }
-
-            setState(() {
-              selectedDetail = value;
-            });
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget personDropdown() {
-    return firestoreDropdown(
-      collection: FirestoreCollections.persons,
-
-      value: selectedPerson,
-
-      hint: 'Person',
-
-      onChanged: (id) {
-        setState(() {
-          selectedPerson = id;
-        });
-      },
-    );
-  }
-
-  Widget paymentDropdown() {
-    return firestoreDropdown(
-      collection: FirestoreCollections.paymentMethods,
-
-      value: selectedPayment,
-
-      hint: 'Payment',
-
-      onChanged: (id) {
-        setState(() {
-          selectedPayment = id;
-        });
-      },
-    );
-  }
-
-  Widget tagDropdown() {
-    return firestoreDropdown(
-      collection: FirestoreCollections.tags,
-
-      value: selectedTag,
-
-      hint: 'Tag',
-
-      onChanged: (id) {
-        setState(() {
-          selectedTag = id;
-        });
-      },
-    );
-  }
-
-  Widget firestoreDropdown({
-    required String collection,
-
-    required String value,
-
-    required String hint,
-
-    required Function(String) onChanged,
-  }) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection(collection).snapshots(),
-
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return compactBox(child: const SizedBox());
-        }
-
-        final docs = snapshot.data!.docs;
-
-        return compactBox(
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: value,
-
-              isExpanded: true,
-
-              style: const TextStyle(fontSize: 11, color: Colors.black),
-
-              items: [
-                DropdownMenuItem(
-                  value: 'All',
-
-                  child: Text(hint, style: const TextStyle(fontSize: 11)),
-                ),
-
-                ...docs.map((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
-
-                  return DropdownMenuItem<String>(
-                    value: doc.id,
-
-                    child: Text(
-                      data['title'],
-
-                      overflow: TextOverflow.ellipsis,
-
-                      style: const TextStyle(fontSize: 11),
-                    ),
-                  );
-                }),
-              ],
-
-              onChanged: (value) {
-                if (value == null) {
-                  return;
-                }
-
-                onChanged(value);
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget dateBox({required String label, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-
-      child: compactBox(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-          children: [
-            Expanded(
-              child: Text(
-                label,
-
-                overflow: TextOverflow.ellipsis,
-
-                style: const TextStyle(fontSize: 11),
-              ),
-            ),
-
-            const Icon(Icons.calendar_today_rounded, size: 12),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget summaryCard({
-    required String title,
-
-    required double amount,
-
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-
-        borderRadius: BorderRadius.circular(12),
-      ),
-
-      child: Column(
-        children: [
-          Text(
-            title,
-
-            style: TextStyle(
-              color: color,
-
-              fontWeight: FontWeight.w700,
-
-              fontSize: 10,
-            ),
-          ),
-
-          const SizedBox(height: 3),
-
-          Text(
-            '₹${amount.toStringAsFixed(0)}',
-
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget transactionCard(TransactionModel transaction) {
-    final bool isExpense = transaction.type == 'Expense';
-
-    final bool isIncome = transaction.type == 'Income';
-
-    Color amountColor = isExpense
-        ? Colors.red
-        : isIncome
-        ? Colors.green
-        : Colors.blue;
-
-    Color iconBg = isExpense
-        ? Colors.red.withOpacity(0.1)
-        : isIncome
-        ? Colors.green.withOpacity(0.1)
-        : Colors.blue.withOpacity(0.1);
-
-    Color iconColor = isExpense
-        ? Colors.red
-        : isIncome
-        ? Colors.green
-        : Colors.blue;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 7),
-
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-      ),
-
-      child: Row(
-        children: [
-          Container(
-            height: 48,
-
-            width: 48,
-
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-
-              borderRadius: BorderRadius.circular(14),
-            ),
-
-            child: Center(
-              child: Text(
-                CategoryIconHelper.getEmoji(transaction.detail),
-
-                style: const TextStyle(fontSize: 24),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        transaction.detail,
-
-                        maxLines: 1,
-
-                        overflow: TextOverflow.ellipsis,
-
-                        style: const TextStyle(
-                          fontSize: 13,
-
-                          fontWeight: FontWeight.w700,
+                                      ],
+                                    );
+                                  },
+                                ),
                         ),
-                      ),
-                    ),
-
-                    Text(
-                      '${isExpense ? '-' : '+'}₹${transaction.amount.toStringAsFixed(0)}',
-
-                      style: TextStyle(
-                        color: amountColor,
-
-                        fontWeight: FontWeight.bold,
-
-                        fontSize: 13,
-                      ),
-                    ),
-
-                    PopupMenuButton<String>(
-                      padding: EdgeInsets.zero,
-
-                      constraints: const BoxConstraints(),
-
-                      icon: Icon(
-                        Icons.more_vert,
-
-                        size: 14,
-
-                        color: Colors.grey.shade500,
-                      ),
-
-                      onSelected: (value) async {
-                        if (value == 'edit') {
-                          final result = await Navigator.push(
-                            context,
-
-                            MaterialPageRoute(
-                              builder: (_) => AddTransactionScreen(
-                                transactionId: transaction.id,
-
-                                transactionData: transaction.toMap(),
-                              ),
-                            ),
-                          );
-
-                          if (result == true) {
-                            setState(() {});
-                          }
-                        } else if (value == 'delete') {
-                          await transactionService.deleteTransaction(
-                            transaction.id,
-                          );
-                        }
-                      },
-
-                      itemBuilder: (context) {
-                        return [
-                          const PopupMenuItem(
-                            value: 'edit',
-
-                            child: Text('Edit'),
-                          ),
-
-                          const PopupMenuItem(
-                            value: 'delete',
-
-                            child: Text('Delete'),
-                          ),
-                        ];
-                      },
-                    ),
-                  ],
-                ),
-
-                Text(
-                  '${transaction.category} • ${transaction.paymentMethod} • ${transaction.person} • ${transaction.tag}${transaction.notes.isNotEmpty ? ' • ${transaction.notes}' : ''}',
-
-                  maxLines: 1,
-
-                  overflow: TextOverflow.ellipsis,
-
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
-                ),
-              ],
+                      ],
+                    );
+                  },
+                );
+              },
             ),
-          ),
-        ],
-      ),
     );
   }
 }

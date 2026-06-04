@@ -3,17 +3,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class DashboardService {
   Future<Map<String, dynamic>> getDashboardData(
     DateTime selectedMonth,
-
     String selectedPerson,
+    String workspaceId,
   ) async {
     final snapshot = await FirebaseFirestore.instance
         .collection('transactions')
+        .where('workspaceId', isEqualTo: workspaceId)
         .get();
 
     final transactions = snapshot.docs;
 
     final limitsSnapshot = await FirebaseFirestore.instance
         .collection('expense_limits')
+        .where('workspaceId', isEqualTo: workspaceId)
         .get();
 
     double balanceIncome = 0;

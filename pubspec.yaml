@@ -35,6 +35,8 @@ dependencies:
   path_provider: ^2.1.4
   fl_chart: ^0.68.0
   dropdown_button2: ^2.3.9
+  google_sign_in: ^6.2.1
+  lottie: ^3.3.3
 
 dev_dependencies:
 
@@ -55,9 +57,12 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/csv/transactions.csv
+    - assets/lottie/login_animation.json
 
-flutter_launcher_icons:
+flutter_icons:
   android: true
   ios: true
-  image_path: "assets/icon/app_icon.png"
+
+  image_path: "assets/icon/app_iconn.png"
+
+  remove_alpha_ios: true

@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:money_tracker/services/workspace/workspace_context.dart';
+import '../../constants/firestore_collections.dart';
+import '../../models/setup_item_model.dart';
+import '../../services/setup/setup_service.dart';
 
 import '../../services/dashboard/dashboard_service.dart';
 
 import '../../widgets/app_drawer.dart';
+import '../../widgets/menu_button.dart';
 
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
@@ -16,6 +21,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final DashboardService dashboardService = DashboardService();
+  final SetupService setupService = SetupService();
 
   DateTime selectedMonth = DateTime.now();
 
@@ -34,6 +40,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     dashboardFuture = dashboardService.getDashboardData(
       selectedMonth,
       selectedPerson,
+      WorkspaceContext.currentWorkspaceId!,
     );
   }
 
@@ -112,22 +119,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       Builder(
                         builder: (context) {
-                          return GestureDetector(
+                          return MenuButton(
                             onTap: () {
                               Scaffold.of(context).openDrawer();
                             },
-
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-
-                              child: const Icon(Icons.menu_rounded),
-                            ),
                           );
                         },
                       ),
@@ -235,24 +230,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   // =====================
                   // PERSON FILTER
                   // =====================
-                  Row(
-                    children: [
-                      personChip('All'),
+                  // =====================
+                  // PERSON FILTER
+                  // =====================
+                  StreamBuilder<List<SetupItemModel>>(
+                    stream: setupService.getItems(
+                      FirestoreCollections.persons,
+                      WorkspaceContext.currentWorkspaceId!,
+                    ),
 
-                      const SizedBox(width: 10),
+                    builder: (context, snapshot) {
+                      final persons = snapshot.data ?? [];
 
-                      personChip('Eswar'),
+                      final filters = [
+                        'All',
+                        ...persons.map((e) => e.title),
+                      ];
 
-                      const SizedBox(width: 10),
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
 
-                      personChip('Latha'),
+                        child: Row(
+                          children: filters.map((person) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 10),
 
-                      const SizedBox(width: 10),
+                              child: SizedBox(
+                                width: 90,
 
-                      personChip('Both'),
-                    ],
+                                child: personChip(person),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    },
                   ),
-
                   const SizedBox(height: 24),
 
                   // =====================
@@ -499,7 +512,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       return categoryTile(
                         category: categoryData.key,
 
-                        amount: categoryData.value.toDouble(), totalExpense: data['expense'],
+                        amount: categoryData.value.toDouble(),
+                        totalExpense: data['expense'],
                       );
                     }),
                 ],
@@ -830,288 +844,154 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget categoryTile({
+    required String category,
 
-  required String category,
+    required double amount,
 
-  required double amount,
+    required double totalExpense,
+  }) {
+    final color = getCategoryColor(category);
 
-  required double totalExpense,
-}) {
+    final icon = getCategoryEmoji(category);
 
-  final color =
-      getCategoryColor(
-    category,
-  );
+    final double progress = totalExpense <= 0
+        ? 0
+        : (amount / totalExpense).clamp(0, 1);
 
-  final icon =
-      getCategoryEmoji(
-    category,
-  );
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
 
-  final double progress =
+      padding: const EdgeInsets.all(18),
 
-      totalExpense <= 0
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
 
-          ? 0
+          end: Alignment.bottomRight,
 
-          : (amount /
-                  totalExpense)
-              .clamp(0, 1);
+          colors: [color.withOpacity(0.10), Colors.white],
+        ),
 
-  return Container(
+        borderRadius: BorderRadius.circular(24),
 
-    margin:
-        const EdgeInsets.only(
-      bottom: 16,
-    ),
+        border: Border.all(color: color.withOpacity(0.08)),
 
-    padding:
-        const EdgeInsets.all(
-      18,
-    ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.08),
 
-    decoration: BoxDecoration(
+            blurRadius: 16,
 
-      gradient: LinearGradient(
-
-        begin:
-            Alignment.topLeft,
-
-        end:
-            Alignment.bottomRight,
-
-        colors: [
-
-          color.withOpacity(
-            0.10,
+            offset: const Offset(0, 8),
           ),
-
-          Colors.white,
         ],
       ),
 
-      borderRadius:
-          BorderRadius.circular(
-        24,
-      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              // =====================
+              // ICON
+              // =====================
+              Container(
+                height: 52,
 
-      border: Border.all(
+                width: 52,
 
-        color:
-            color.withOpacity(
-          0.08,
-        ),
-      ),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.14),
 
-      boxShadow: [
-
-        BoxShadow(
-
-          color:
-              color.withOpacity(
-            0.08,
-          ),
-
-          blurRadius: 16,
-
-          offset:
-              const Offset(
-            0,
-            8,
-          ),
-        ),
-      ],
-    ),
-
-    child: Column(
-
-      children: [
-
-        Row(
-
-          children: [
-
-            // =====================
-            // ICON
-            // =====================
-
-            Container(
-
-              height: 52,
-
-              width: 52,
-
-              decoration: BoxDecoration(
-
-                color:
-                    color.withOpacity(
-                  0.14,
+                  borderRadius: BorderRadius.circular(18),
                 ),
 
-                borderRadius:
-                    BorderRadius.circular(
-                  18,
+                child: Center(
+                  child: Text(icon, style: const TextStyle(fontSize: 24)),
                 ),
               ),
 
-              child: Center(
+              const SizedBox(width: 14),
 
-                child: Text(
+              // =====================
+              // CATEGORY
+              // =====================
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
-                  icon,
+                  children: [
+                    Text(
+                      category,
 
-                  style:
-                      const TextStyle(
-                    fontSize: 24,
-                  ),
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 4),
+
+                    Text(
+                      '${(progress * 100).toStringAsFixed(0)}% of total expenses',
+
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
 
-            const SizedBox(
-              width: 14,
-            ),
-
-            // =====================
-            // CATEGORY
-            // =====================
-
-            Expanded(
-
-              child: Column(
-
-                crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
+              // =====================
+              // AMOUNT
+              // =====================
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
 
                 children: [
-
                   Text(
+                    '₹${amount.toStringAsFixed(0)}',
 
-                    category,
-
-                    style:
-                        AppTextStyles
-                            .bodyLarge
-                            .copyWith(
-
-                      fontWeight:
-                          FontWeight.bold,
-                    ),
+                    style: AppTextStyles.heading3.copyWith(color: color),
                   ),
 
-                  const SizedBox(
-                    height: 4,
-                  ),
+                  const SizedBox(height: 4),
 
                   Text(
+                    '${(progress * 100).toStringAsFixed(0)}%',
 
-                    '${(progress * 100).toStringAsFixed(0)}% of total expenses',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: color,
 
-                    style:
-                        AppTextStyles
-                            .bodySmall
-                            .copyWith(
-
-                      color:
-                          Colors
-                              .grey
-                              .shade600,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
-            ),
-
-            // =====================
-            // AMOUNT
-            // =====================
-
-            Column(
-
-              crossAxisAlignment:
-                  CrossAxisAlignment
-                      .end,
-
-              children: [
-
-                Text(
-
-                  '₹${amount.toStringAsFixed(0)}',
-
-                  style:
-                      AppTextStyles
-                          .heading3
-                          .copyWith(
-
-                    color: color,
-                  ),
-                ),
-
-                const SizedBox(
-                  height: 4,
-                ),
-
-                Text(
-
-                  '${(progress * 100).toStringAsFixed(0)}%',
-
-                  style:
-                      AppTextStyles
-                          .bodySmall
-                          .copyWith(
-
-                    color:
-                        color,
-
-                    fontWeight:
-                        FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-
-        const SizedBox(
-          height: 18,
-        ),
-
-        // =====================
-        // PROGRESS BAR
-        // =====================
-
-        ClipRRect(
-
-          borderRadius:
-              BorderRadius.circular(
-            20,
+            ],
           ),
 
-          child:
-              LinearProgressIndicator(
+          const SizedBox(height: 18),
 
-            value: progress,
+          // =====================
+          // PROGRESS BAR
+          // =====================
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
 
-            minHeight: 10,
+            child: LinearProgressIndicator(
+              value: progress,
 
-            backgroundColor:
-                color.withOpacity(
-              0.10,
-            ),
+              minHeight: 10,
 
-            valueColor:
-                AlwaysStoppedAnimation(
-              color,
+              backgroundColor: color.withOpacity(0.10),
+
+              valueColor: AlwaysStoppedAnimation(color),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
-
+        ],
+      ),
+    );
+  }
 }
 
 class SavingsMeter extends StatelessWidget {

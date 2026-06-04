@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TransactionModel {
-
   final String id;
 
   final String type;
@@ -30,8 +29,9 @@ class TransactionModel {
 
   final int year;
 
-  const TransactionModel({
+  final String workspaceId;
 
+  const TransactionModel({
     required this.id,
 
     required this.type,
@@ -59,82 +59,57 @@ class TransactionModel {
     required this.month,
 
     required this.year,
+
+    required this.workspaceId,
   });
 
-  factory TransactionModel.fromFirestore(
-    DocumentSnapshot doc,
-  ) {
-
-    final data =
-        doc.data()
-            as Map<String, dynamic>;
+  factory TransactionModel.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
 
     return TransactionModel(
-
       id: doc.id,
 
       type: data['type'] ?? '',
 
-      categoryId:
-          data['categoryId'] ?? '',
+      categoryId: data['categoryId'] ?? '',
 
-      category:
-          data['category'] ?? '',
+      category: data['category'] ?? '',
 
-      detail:
-          data['detail'] ?? '',
+      detail: data['detail'] ?? '',
 
-      amount:
-          (data['amount'] ?? 0)
-              .toDouble(),
+      amount: (data['amount'] ?? 0).toDouble(),
 
-      paymentMethodId:
-          data['paymentMethodId'] ?? '',
+      paymentMethodId: data['paymentMethodId'] ?? '',
 
-      paymentMethod:
-          data['paymentMethod'] ?? '',
+      paymentMethod: data['paymentMethod'] ?? '',
 
-      personId:
-          data['personId'] ?? '',
+      personId: data['personId'] ?? '',
 
-      person:
-          data['person'] ?? '',
+      person: data['person'] ?? '',
 
-      tagId:
-          data['tagId'] ?? '',
+      tagId: data['tagId'] ?? '',
 
-      tag:
-          data['tag'] ?? '',
+      tag: data['tag'] ?? '',
 
-      notes:
-          data['notes'] ?? '',
+      notes: data['notes'] ?? '',
 
-date:
+      date: data['date'] != null
+          ? (data['date'] as Timestamp).toDate()
+          : DateTime.now(),
 
-    data['date'] != null
+      month: data['month'] ?? 0,
 
-        ? (data['date']
-                as Timestamp)
-            .toDate()
+      year: data['year'] ?? 0,
 
-        : DateTime.now(),
-
-      month:
-          data['month'] ?? 0,
-
-      year:
-          data['year'] ?? 0,
+      workspaceId: data['workspaceId'] ?? '',
     );
   }
 
   Map<String, dynamic> toMap() {
-
     return {
-
       'type': type,
 
-      'categoryId':
-          categoryId,
+      'categoryId': categoryId,
 
       'category': category,
 
@@ -142,11 +117,9 @@ date:
 
       'amount': amount,
 
-      'paymentMethodId':
-          paymentMethodId,
+      'paymentMethodId': paymentMethodId,
 
-      'paymentMethod':
-          paymentMethod,
+      'paymentMethod': paymentMethod,
 
       'personId': personId,
 
@@ -158,13 +131,13 @@ date:
 
       'notes': notes,
 
-      'date': Timestamp.fromDate(
-        date,
-      ),
+      'date': Timestamp.fromDate(date),
 
       'month': month,
 
       'year': year,
+
+      'workspaceId': workspaceId,
     };
   }
 }
