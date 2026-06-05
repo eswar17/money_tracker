@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../constants/app_strings.dart';
 import '../../../helpers/app_emoji_helper.dart';
 import '../../../models/transaction_model.dart';
-import '../../../constants/app_strings.dart';
+
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../theme/app_text_styles.dart';
@@ -28,17 +28,33 @@ class TransactionCard extends StatelessWidget {
 
     final bool isIncome = transaction.type == AppStrings.income;
 
+    final String amountPrefix = isExpense
+        ? '-'
+        : isIncome
+        ? '+'
+        : '';
+
     final Color amountColor = isExpense
         ? AppColors.expense
         : isIncome
         ? AppColors.income
-        : AppColors.primary;
+        : AppColors.transfer;
+
+    final subtitleItems = [
+      transaction.category,
+      transaction.paymentMethod,
+      transaction.person,
+      if (transaction.tag.isNotEmpty) transaction.tag,
+      if (transaction.notes.isNotEmpty) transaction.notes,
+    ];
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
 
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.divider)),
+        border: Border(
+          bottom: BorderSide(color: AppColors.divider.withValues(alpha: 0.4)),
+        ),
       ),
 
       child: Row(
@@ -87,25 +103,46 @@ class TransactionCard extends StatelessWidget {
                     ),
 
                     Text(
-                      '${isExpense ? '-' : '+'}₹${transaction.amount.toStringAsFixed(0)}',
+                      '$amountPrefix₹${transaction.amount.toStringAsFixed(0)}',
 
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: amountColor,
-                        fontWeight: FontWeight.bold,
+
+                        fontSize: 16,
+
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
 
                     PopupMenuButton<String>(
+                      tooltip: '',
+
                       padding: EdgeInsets.zero,
 
-                      constraints: const BoxConstraints(),
+                      color: Colors.white,
 
-                      icon: Icon(
-                        Icons.more_vert,
+                      elevation: 8,
 
-                        size: 14,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
 
-                        color: Colors.grey.shade500,
+                      icon: Container(
+                        padding: const EdgeInsets.all(6),
+
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+
+                        child: Icon(
+                          Icons.more_horiz_rounded,
+
+                          size: 18,
+
+                          color: Colors.grey.shade700,
+                        ),
                       ),
 
                       onSelected: (value) {
@@ -123,13 +160,29 @@ class TransactionCard extends StatelessWidget {
                           const PopupMenuItem(
                             value: AppStrings.edit,
 
-                            child: Text(AppStrings.edit),
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit_outlined, size: 18),
+
+                                SizedBox(width: 10),
+
+                                Text(AppStrings.edit),
+                              ],
+                            ),
                           ),
 
                           const PopupMenuItem(
                             value: AppStrings.delete,
 
-                            child: Text(AppStrings.delete),
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete_outline, size: 18),
+
+                                SizedBox(width: 10),
+
+                                Text(AppStrings.delete),
+                              ],
+                            ),
                           ),
                         ];
                       },
@@ -138,7 +191,7 @@ class TransactionCard extends StatelessWidget {
                 ),
 
                 Text(
-                  '${transaction.category} • ${transaction.paymentMethod} • ${transaction.person} • ${transaction.tag}${transaction.notes.isNotEmpty ? ' • ${transaction.notes}' : ''}',
+                  subtitleItems.join(' • '),
 
                   maxLines: 1,
 

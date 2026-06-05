@@ -46,6 +46,7 @@ class TransactionFilters extends StatelessWidget {
   final ValueChanged<String> onPaymentChanged;
 
   final ValueChanged<String> onTagChanged;
+  final int transactionCount;
 
   const TransactionFilters({
     super.key,
@@ -68,6 +69,7 @@ class TransactionFilters extends StatelessWidget {
     required this.onPersonChanged,
     required this.onPaymentChanged,
     required this.onTagChanged,
+    required this.transactionCount,
   });
 
   @override
@@ -128,24 +130,38 @@ class TransactionFilters extends StatelessWidget {
           ],
         ),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
 
-        Align(
-          alignment: Alignment.centerRight,
+        Row(
+          children: [
+            Icon(Icons.filter_alt_outlined, size: 16, color: AppColors.primary),
 
-          child: GestureDetector(
-            onTap: onClearFilters,
+            const SizedBox(width: 4),
 
-            child: Text(
-              AppStrings.clearFilters,
+            Text(
+              'showing $transactionCount transactions',
 
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.primary,
-
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
+                color: AppColors.textPrimary,
               ),
             ),
-          ),
+
+            const Spacer(),
+
+            GestureDetector(
+              onTap: onClearFilters,
+
+              child: Text(
+                AppStrings.clearFilters,
+
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
