@@ -34,11 +34,13 @@ class TransactionService {
         .where('workspaceId', isEqualTo: workspaceId)
         .snapshots()
         .map((snapshot) {
-          print('TRANSACTIONS FOUND: ${snapshot.docs.length}');
-
-          return snapshot.docs.map((doc) {
+          final transactions = snapshot.docs.map((doc) {
             return TransactionModel.fromFirestore(doc);
           }).toList();
+
+          transactions.sort((a, b) => b.date.compareTo(a.date));
+
+          return transactions;
         });
   }
 }

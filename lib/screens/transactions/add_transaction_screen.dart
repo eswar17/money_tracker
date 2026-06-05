@@ -44,7 +44,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   String? selectedTagId;
   String? selectedTagName;
 
-  List<String> detailList = [];
+  String? selectedDetailId;
+
+  List<Map<String, dynamic>> detailList = [];
 
   DateTime selectedDate = DateTime.now();
 
@@ -71,6 +73,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     selectedCategoryId = data['categoryId'];
 
     selectedCategoryName = data['category'];
+
+    selectedDetailId = data['detailId'];
 
     selectedDetail = data['detail'];
 
@@ -117,7 +121,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final data = doc.data() as Map<String, dynamic>;
 
     setState(() {
-      detailList = List<String>.from(data['details'] ?? []);
+      detailList = List<Map<String, dynamic>>.from(data['details'] ?? []);
     });
   }
 
@@ -143,10 +147,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   Future<void> saveTransaction() async {
     if (selectedCategoryId == null ||
-        selectedDetail == null ||
+        selectedDetailId == null ||
         selectedPaymentMethodId == null ||
         selectedPersonId == null ||
-        selectedTagId == null ||
         amountController.text.trim().isEmpty) {
       ScaffoldMessenger.of(
         context,
@@ -178,6 +181,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
       category: selectedCategoryName!,
 
+      detailId: selectedDetailId!,
+
       detail: selectedDetail!,
 
       amount: amount,
@@ -190,9 +195,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
       person: selectedPersonName!,
 
-      tagId: selectedTagId!,
+      tagId: selectedTagId ?? '',
 
-      tag: selectedTagName!,
+      tag: selectedTagName ?? '',
 
       notes: notesController.text.trim(),
 
@@ -339,6 +344,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       selectedCategoryName = selectedData['title'];
 
                       selectedDetail = null;
+
+                      selectedDetailId = null;
                     });
 
                     loadDetails(value);
@@ -357,19 +364,30 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
               hint: 'Select Detail*',
 
-              value: selectedDetail,
+              value: selectedDetailId,
 
               items: detailList.map((detail) {
                 return DropdownMenuItem<String>(
-                  value: detail,
-
-                  child: Text(detail),
+                  value: detail['id'],
+                  child: Text(detail['name']),
                 );
               }).toList(),
 
               onChanged: (value) {
                 setState(() {
-                  selectedDetail = value;
+                  if (value == null) {
+                    return;
+                  }
+
+                  final selected = detailList.firstWhere(
+                    (e) => e['id'] == value,
+                  );
+
+                  setState(() {
+                    selectedDetailId = selected['id'];
+
+                    selectedDetail = selected['name'];
+                  });
                 });
               },
             ),
@@ -426,7 +444,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             firestoreDropdown(
               collection: FirestoreCollections.tags,
 
-              label: 'Select Tag*',
+              label: 'Select Tag (Optional)',
 
               icon: Icons.sell_rounded,
 
@@ -449,7 +467,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             modernTextField(
               controller: notesController,
 
-              hint: 'Add Notes',
+              hint: 'Add Notes (Optional)',
 
               icon: Icons.notes_rounded,
 
@@ -546,6 +564,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             selectedCategoryId = null;
 
             selectedCategoryName = null;
+
+            selectedDetailId = null;
 
             selectedDetail = null;
 
@@ -685,15 +705,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   Widget firestoreDropdown({
     required String collection,
-
     required String label,
-
     required IconData icon,
-
     required Color iconColor,
-
     required String? value,
-
     required Function(String id, String name) onChanged,
   }) {
     return StreamBuilder<QuerySnapshot>(
@@ -709,6 +724,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
         final docs = snapshot.data!.docs;
 
+        String? dropdownValue = value;
+
+        final exists = docs.any((doc) => doc.id == value);
+
+        if (!exists) {
+          dropdownValue = null;
+        }
+
         return modernDropdown<String>(
           icon: icon,
 
@@ -716,7 +739,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
           hint: label,
 
-          value: value,
+          value: dropdownValue,
 
           items: docs.map((doc) {
             final data = doc.data() as Map<String, dynamic>;
@@ -743,4 +766,5 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       },
     );
   }
+  
 }

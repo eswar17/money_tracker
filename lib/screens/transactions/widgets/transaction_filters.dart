@@ -13,7 +13,7 @@ class TransactionFilters extends StatelessWidget {
 
   final String selectedCategory;
 
-  final String selectedDetail;
+  final String selectedDetailId;
 
   final String selectedPerson;
 
@@ -23,7 +23,7 @@ class TransactionFilters extends StatelessWidget {
 
   final String? categoryCollection;
 
-  final List<String> details;
+  final List<Map<String, dynamic>> details;
 
   final DateTime? startDate;
 
@@ -51,7 +51,7 @@ class TransactionFilters extends StatelessWidget {
     super.key,
     required this.selectedType,
     required this.selectedCategory,
-    required this.selectedDetail,
+    required this.selectedDetailId,
     required this.selectedPerson,
     required this.selectedPayment,
     required this.selectedTag,
@@ -279,7 +279,7 @@ class TransactionFilters extends StatelessWidget {
     return _compactBox(
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: selectedDetail,
+          value: selectedDetailId,
 
           isExpanded: true,
 
@@ -294,8 +294,9 @@ class TransactionFilters extends StatelessWidget {
                 ]
               : details.map((detail) {
                   return DropdownMenuItem<String>(
-                    value: detail,
-                    child: Text(detail, style: AppTextStyles.bodySmall),
+                    value: detail['id'],
+
+                    child: Text(detail['name'], style: AppTextStyles.bodySmall),
                   );
                 }).toList(),
 
@@ -372,6 +373,11 @@ class TransactionFilters extends StatelessWidget {
 
                   child: Text(hint, style: AppTextStyles.bodySmall),
                 ),
+                if (collection == FirestoreCollections.tags)
+                  const DropdownMenuItem(
+                    value: '__NO_TAG__',
+                    child: Text('No Tag'),
+                  ),
 
                 ...docs.map((doc) {
                   final data = doc.data() as Map<String, dynamic>;

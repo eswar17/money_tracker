@@ -8,6 +8,8 @@ class TransactionModel {
   final String categoryId;
   final String category;
 
+  final String detailId;
+
   final String detail;
 
   final double amount;
@@ -38,6 +40,8 @@ class TransactionModel {
 
     required this.categoryId,
     required this.category,
+
+    required this.detailId,
 
     required this.detail,
 
@@ -74,6 +78,8 @@ class TransactionModel {
       categoryId: data['categoryId'] ?? '',
 
       category: data['category'] ?? '',
+
+      detailId: data['detailId'] ?? '',
 
       detail: data['detail'] ?? '',
 
@@ -112,6 +118,8 @@ class TransactionModel {
       'categoryId': categoryId,
 
       'category': category,
+
+      'detailId': detailId,
 
       'detail': detail,
 

@@ -33,11 +33,11 @@ class WorkspaceService {
       'createdAt': FieldValue.serverTimestamp(),
     });
 
+    await _seedDefaultData(workspaceRef.id);
+
     await _db.collection('users').doc(user.uid).set({
       'workspaceId': workspaceRef.id,
     }, SetOptions(merge: true));
-
-    await _seedDefaultData(workspaceRef.id);
   }
 
   static Future<void> _seedDefaultData(String workspaceId) async {
@@ -62,6 +62,7 @@ class WorkspaceService {
     WriteBatch batch,
     String workspaceId,
   ) async {
+    print('SEEDING EXPENSE CATEGORIES');
     final items = {
       'Food': [
         'Junk Food',
@@ -143,7 +144,13 @@ class WorkspaceService {
 
       batch.set(doc, {
         'title': item.key,
-        'details': item.value,
+
+        'details': item.value
+            .asMap()
+            .entries
+            .map((e) => {'id': '${item.key}_${e.key}', 'name': e.value})
+            .toList(),
+
         'workspaceId': workspaceId,
       });
     }
@@ -153,21 +160,36 @@ class WorkspaceService {
     WriteBatch batch,
     String workspaceId,
   ) async {
-    final items = [
-      'Salary',
-      'Business',
-      'Interest',
-      'Gift',
-      'Refund',
-      'Other Income',
-    ];
+    print('SEEDING Income CATEGORIES');
+    final items = {
+      'Salary': ['Monthly Salary', 'Bonus', 'Incentive', 'Overtime'],
 
-    for (final title in items) {
+      'Business': ['Sales', 'Commission', 'Service Income', 'Profit'],
+
+      'Interest': [
+        'Bank Interest',
+        'FD Interest',
+        'RD Interest',
+        'Savings Interest',
+      ],
+
+      'Gifts': ['Cash Gift', 'Family Gift', 'Friend Gift'],
+
+      'Refund': ['Order Refund', 'Bill Refund', 'Tax Refund'],
+
+      'Other Income': ['Cashback', 'Rewards', 'Miscellaneous'],
+    };
+
+    for (final item in items.entries) {
       final doc = _db.collection('income_categories').doc();
 
       batch.set(doc, {
-        'title': title,
-        'details': [],
+        'title': item.key,
+        'details': item.value
+            .asMap()
+            .entries
+            .map((e) => {'id': '${item.key}_${e.key}', 'name': e.value})
+            .toList(),
         'workspaceId': workspaceId,
       });
     }
@@ -177,14 +199,25 @@ class WorkspaceService {
     WriteBatch batch,
     String workspaceId,
   ) async {
-    final items = ['Self Transfer', 'Cash Withdrawal', 'Cash Deposit'];
+    print('SEEDING transfer CATEGORIES');
+    final items = {
+      'Self Transfer': ['Bank To Bank', 'Bank To Cash', 'Cash To Bank'],
 
-    for (final title in items) {
+      'Cash Withdrawal': ['ATM Withdrawal', 'Branch Withdrawal'],
+
+      'Cash Deposit': ['ATM Deposit', 'Branch Deposit'],
+    };
+
+    for (final item in items.entries) {
       final doc = _db.collection('transfer_categories').doc();
 
       batch.set(doc, {
-        'title': title,
-        'details': [],
+        'title': item.key,
+        'details': item.value
+            .asMap()
+            .entries
+            .map((e) => {'id': '${item.key}_${e.key}', 'name': e.value})
+            .toList(),
         'workspaceId': workspaceId,
       });
     }

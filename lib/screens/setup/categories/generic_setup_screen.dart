@@ -124,7 +124,7 @@ class _GenericSetupScreenState extends State<GenericSetupScreen> {
                 runSpacing: AppSpacing.xs,
 
                 children: item.details.map((detail) {
-                  return Chip(label: Text(detail));
+                  return Chip(label: Text(detail['name'] ?? ''));
                 }).toList(),
               ),
             ),
@@ -151,7 +151,7 @@ class _GenericSetupScreenState extends State<GenericSetupScreen> {
 
     final detailController = TextEditingController();
 
-    final details = item?.details.toList() ?? <String>[];
+    final details = item?.details.toList() ?? <Map<String, dynamic>>[];
 
     showDialog(
       context: context,
@@ -204,7 +204,11 @@ class _GenericSetupScreenState extends State<GenericSetupScreen> {
                               }
 
                               setDialogState(() {
-                                details.add(value);
+                                details.add({
+                                  'id': DateTime.now().microsecondsSinceEpoch
+                                      .toString(),
+                                  'name': value,
+                                });
                               });
 
                               detailController.clear();
@@ -224,16 +228,68 @@ class _GenericSetupScreenState extends State<GenericSetupScreen> {
                         runSpacing: AppSpacing.xs,
 
                         children: details.map((detail) {
-                          return Chip(
-                            label: Text(detail),
+                          return GestureDetector(
+                            onTap: () {
+                              final controller = TextEditingController(
+                                text: detail['name'],
+                              );
 
-                            deleteIcon: const Icon(Icons.close),
+                              showDialog(
+                                context: context,
+                                builder: (_) {
+                                  return AlertDialog(
+                                    title: const Text('Edit Detail'),
 
-                            onDeleted: () {
-                              setDialogState(() {
-                                details.remove(detail);
-                              });
+                                    content: TextField(
+                                      controller: controller,
+                                      autofocus: true,
+                                    ),
+
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+
+                                        child: const Text('Cancel'),
+                                      ),
+
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          final value = controller.text.trim();
+
+                                          if (value.isEmpty) {
+                                            return;
+                                          }
+
+                                          setDialogState(() {
+                                            detail['name'] = value;
+                                          });
+
+                                          Navigator.pop(context);
+                                        },
+
+                                        child: const Text('Save'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
                             },
+
+                            child: Chip(
+                              label: Text(detail['name'] ?? ''),
+
+                              deleteIcon: const Icon(Icons.close),
+
+                              onDeleted: () {
+                                setDialogState(() {
+                                  details.removeWhere(
+                                    (e) => e['id'] == detail['id'],
+                                  );
+                                });
+                              },
+                            ),
                           );
                         }).toList(),
                       ),

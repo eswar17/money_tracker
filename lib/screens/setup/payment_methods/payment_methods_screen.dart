@@ -64,13 +64,13 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
   Widget paymentCard(SetupItemModel item) {
     final details = item.details;
 
-    final cardType = details.length > 0 ? details[0] : '';
+    final cardType = details.length > 0 ? details[0]['name'] ?? '' : '';
 
-    final bankName = details.length > 1 ? details[1] : '';
+    final bankName = details.length > 1 ? details[1]['name'] ?? '' : '';
 
-    final billingDate = details.length > 2 ? details[2] : '';
+    final billingDate = details.length > 2 ? details[2]['name'] ?? '' : '';
 
-    final dueDate = details.length > 3 ? details[3] : '';
+    final dueDate = details.length > 3 ? details[3]['name'] ?? '' : '';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -169,19 +169,27 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     final titleController = TextEditingController(text: item?.title ?? '');
 
     final cardTypeController = TextEditingController(
-      text: item != null && item.details.length > 0 ? item.details[0] : '',
+      text: item != null && item.details.length > 0
+          ? item.details[0]['name'] ?? ''
+          : '',
     );
 
     final bankController = TextEditingController(
-      text: item != null && item.details.length > 1 ? item.details[1] : '',
+      text: item != null && item.details.length > 1
+          ? item.details[1]['name'] ?? ''
+          : '',
     );
 
     final billingController = TextEditingController(
-      text: item != null && item.details.length > 2 ? item.details[2] : '',
+      text: item != null && item.details.length > 2
+          ? item.details[2]['name'] ?? ''
+          : '',
     );
 
     final dueController = TextEditingController(
-      text: item != null && item.details.length > 3 ? item.details[3] : '',
+      text: item != null && item.details.length > 3
+          ? item.details[3]['name'] ?? ''
+          : '',
     );
 
     showDialog(
@@ -257,13 +265,13 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                 }
 
                 final details = [
-                  cardTypeController.text.trim(),
+                  {'id': 'card_type', 'name': cardTypeController.text.trim()},
 
-                  bankController.text.trim(),
+                  {'id': 'bank_name', 'name': bankController.text.trim()},
 
-                  billingController.text.trim(),
+                  {'id': 'billing_date', 'name': billingController.text.trim()},
 
-                  dueController.text.trim(),
+                  {'id': 'due_date', 'name': dueController.text.trim()},
                 ];
 
                 final payment = SetupItemModel(

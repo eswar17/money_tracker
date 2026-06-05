@@ -5,7 +5,7 @@ class SetupItemModel {
 
   final String title;
 
-  final List<String> details;
+  final List<Map<String, dynamic>> details;
 
   final String workspaceId;
 
@@ -24,7 +24,7 @@ class SetupItemModel {
 
       title: data['title'] ?? '',
 
-      details: List<String>.from(data['details'] ?? []),
+      details: List<Map<String, dynamic>>.from(data['details'] ?? []),
 
       workspaceId: data['workspaceId'] ?? '',
     );

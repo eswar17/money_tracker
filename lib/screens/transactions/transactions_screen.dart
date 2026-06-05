@@ -39,13 +39,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   String selectedType = AppStrings.all;
   String selectedCategory = AppStrings.all;
-  String selectedDetail = AppStrings.all;
+  String selectedDetailId = AppStrings.all;
   String selectedPerson = AppStrings.all;
   String selectedPayment = AppStrings.all;
   String selectedTag = AppStrings.all;
   String? workspaceId;
 
-  List<String> details = [];
+  List<Map<String, dynamic>> details = [];
 
   String? get categoryCollection {
     switch (selectedType) {
@@ -94,8 +94,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
     setState(() {
       details = [
-        AppStrings.all,
-        ...List<String>.from(data[AppStrings.details] ?? []),
+        {'id': AppStrings.all, 'name': AppStrings.all},
+
+        ...List<Map<String, dynamic>>.from(data['details'] ?? []),
       ];
     });
   }
@@ -152,7 +153,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
       selectedCategory = AppStrings.all;
 
-      selectedDetail = AppStrings.all;
+      selectedDetailId = AppStrings.all;
 
       selectedPerson = AppStrings.all;
 
@@ -180,7 +181,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       }
 
       // DETAIL
-      if (selectedDetail != AppStrings.all && t.detail != selectedDetail) {
+      if (selectedDetailId != AppStrings.all &&
+          t.detailId != selectedDetailId) {
         return false;
       }
 
@@ -196,7 +198,11 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       }
 
       // TAG
-      if (selectedTag != AppStrings.all && t.tagId != selectedTag) {
+      if (selectedTag == '__NO_TAG__') {
+        if (t.tagId.isNotEmpty) {
+          return false;
+        }
+      } else if (selectedTag != AppStrings.all && t.tagId != selectedTag) {
         return false;
       }
 
@@ -376,7 +382,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
                             selectedCategory: selectedCategory,
 
-                            selectedDetail: selectedDetail,
+                            selectedDetailId: selectedDetailId,
 
                             selectedPerson: selectedPerson,
 
@@ -404,7 +410,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
                                 selectedCategory = AppStrings.all;
 
-                                selectedDetail = AppStrings.all;
+                                selectedDetailId = AppStrings.all;
 
                                 details = [];
                               });
@@ -415,7 +421,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 setState(() {
                                   selectedCategory = AppStrings.all;
 
-                                  selectedDetail = AppStrings.all;
+                                  selectedDetailId = AppStrings.all;
 
                                   details = [];
                                 });
@@ -432,7 +438,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
                             onDetailChanged: (value) {
                               setState(() {
-                                selectedDetail = value;
+                                selectedDetailId = value;
                               });
                             },
 
