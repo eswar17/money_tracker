@@ -64,84 +64,257 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
   Widget paymentCard(SetupItemModel item) {
     final details = item.details;
 
-    final cardType = details.length > 0 ? details[0]['name'] ?? '' : '';
+    String getValue(String id) {
+      try {
+        return details.firstWhere((e) => e['id'] == id)['name'] ?? '';
+      } catch (_) {
+        return '';
+      }
+    }
 
-    final bankName = details.length > 1 ? details[1]['name'] ?? '' : '';
+    final cardType = getValue('card_type');
+    final bankName = getValue('bank_name');
+    final billingDate = getValue('billing_date');
+    final dueDate = getValue('due_date');
 
-    final billingDate = details.length > 2 ? details[2]['name'] ?? '' : '';
+    IconData icon = Icons.account_balance_wallet_rounded;
 
-    final dueDate = details.length > 3 ? details[3]['name'] ?? '' : '';
+    if (cardType.toLowerCase().contains('credit')) {
+      icon = Icons.credit_card_rounded;
+    } else if (cardType.toLowerCase().contains('debit')) {
+      icon = Icons.payments_rounded;
+    } else if (cardType.toLowerCase().contains('upi')) {
+      icon = Icons.qr_code_scanner_rounded;
+    } else if (cardType.toLowerCase().contains('bank')) {
+      icon = Icons.account_balance_rounded;
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
 
-      padding: const EdgeInsets.all(18),
-
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(28),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
 
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
 
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
 
-            children: [
-              Expanded(
-                child: Text(
-                  item.title,
+          children: [
+            Row(
+              children: [
+                Container(
+                  height: 56,
+                  width: 56,
 
-                  style: const TextStyle(
-                    fontSize: 20,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF16A34A).withValues(alpha: 0.10),
 
-                    fontWeight: FontWeight.bold,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+
+                  child: Icon(icon, color: const Color(0xFF16A34A), size: 28),
+                ),
+
+                const SizedBox(width: 14),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                    children: [
+                      Text(
+                        item.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+
+                      if (cardType.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3),
+                          child: Text(
+                            cardType,
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-              ),
 
-              PopupMenuButton(
-                itemBuilder: (context) {
-                  return [
-                    PopupMenuItem(
-                      child: const Text('Edit'),
+                PopupMenuButton<String>(
+                  tooltip: '',
 
-                      onTap: () {
-                        Future.delayed(Duration.zero, () {
-                          showPaymentDialog(item: item);
-                        });
-                      },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+
+                      borderRadius: BorderRadius.circular(12),
                     ),
 
-                    PopupMenuItem(
-                      child: const Text('Delete'),
+                    child: const Icon(Icons.more_horiz_rounded, size: 18),
+                  ),
 
-                      onTap: () async {
+                  onSelected: (value) async {
+                    if (value == 'edit') {
+                      showPaymentDialog(item: item);
+                    }
+
+                    if (value == 'delete') {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (dialogContext) {
+                          return AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+
+                            title: const Text('Delete Payment Method?'),
+
+                            content: Text(
+                              'Are you sure you want to delete "${item.title}"?',
+                            ),
+
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(dialogContext, false);
+                                },
+                                child: const Text('Cancel'),
+                              ),
+
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(dialogContext, true);
+                                },
+                                child: const Text(
+                                  'Delete',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+
+                      if (confirm == true) {
                         await setupService.deleteItem(
                           collection: FirestoreCollections.paymentMethods,
-
                           id: item.id,
                         );
-                      },
+                      }
+                    }
+                  },
+
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'edit',
+
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit_outlined),
+                          SizedBox(width: 10),
+                          Text('Edit'),
+                        ],
+                      ),
                     ),
-                  ];
-                },
+
+                    const PopupMenuItem(
+                      value: 'delete',
+
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete_outline_rounded, color: Colors.red),
+                          SizedBox(width: 10),
+                          Text('Delete', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            if (bankName.isNotEmpty ||
+                billingDate.isNotEmpty ||
+                dueDate.isNotEmpty)
+              const SizedBox(height: 18),
+
+            if (bankName.isNotEmpty ||
+                billingDate.isNotEmpty ||
+                dueDate.isNotEmpty)
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+
+                children: [
+                  if (bankName.isNotEmpty)
+                    _infoChip(Icons.account_balance_rounded, bankName),
+
+                  if (billingDate.isNotEmpty)
+                    _infoChip(
+                      Icons.calendar_month_rounded,
+                      'Bill $billingDate',
+                    ),
+
+                  if (dueDate.isNotEmpty)
+                    _infoChip(Icons.event_available_rounded, 'Due $dueDate'),
+                ],
               ),
-            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoChip(IconData icon, String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+
+      decoration: BoxDecoration(
+        color: const Color(0xFF16A34A).withValues(alpha: 0.08),
+
+        borderRadius: BorderRadius.circular(14),
+      ),
+
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+
+        children: [
+          Icon(icon, size: 16, color: const Color(0xFF16A34A)),
+
+          const SizedBox(width: 6),
+
+          Text(
+            text,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
           ),
-
-          const SizedBox(height: 16),
-
-          if (cardType.isNotEmpty) detailRow('Type', cardType),
-
-          if (bankName.isNotEmpty) detailRow('Bank', bankName),
-
-          if (billingDate.isNotEmpty) detailRow('Billing Date', billingDate),
-
-          if (dueDate.isNotEmpty) detailRow('Due Date', dueDate),
         ],
       ),
     );

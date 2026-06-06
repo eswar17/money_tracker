@@ -17,7 +17,9 @@ import '../../constants/app_strings.dart';
 import './widgets/transaction_card.dart';
 
 class TransactionsScreen extends StatefulWidget {
-  const TransactionsScreen({super.key});
+  final GlobalKey<ScaffoldState> scaffoldKey;
+
+  const TransactionsScreen({super.key, required this.scaffoldKey});
   @override
   State<TransactionsScreen> createState() => _TransactionsScreenState();
 }
@@ -204,13 +206,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: AppColors.background,
-      drawer: const AppDrawer(),
+      //  drawer: const AppDrawer(),
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: MenuButton(
           onTap: () {
-            scaffoldKey.currentState?.openDrawer();
+            widget.scaffoldKey.currentState?.openDrawer();
           },
         ),
         centerTitle: true,

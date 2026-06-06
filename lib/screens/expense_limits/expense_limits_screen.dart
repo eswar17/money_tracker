@@ -242,12 +242,13 @@ class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
                             .collection('expense_limits')
                             .doc(docId)
                             .set({
-                              'category': selectedCategory,
+                              'workspaceId':
+                                  WorkspaceContext.currentWorkspaceId,
 
+                              'category': selectedCategory,
                               'categoryId': selectedCategoryId,
 
                               'person': selectedPerson,
-
                               'personId': selectedPersonId,
 
                               'limit': limit,
@@ -285,20 +286,41 @@ class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
 
-      appBar: AppBar(title: const Text('Expense Limits')),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF5F7FB),
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Expense Limits',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
 
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.black,
-
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: const Color(0xFF16A34A),
+        elevation: 8,
         onPressed: () {
           openLimitSheet();
         },
-
-        child: const Icon(Icons.add_rounded, color: Colors.white),
+        icon: const Icon(Icons.add_rounded, color: Colors.white),
+        label: const Text(
+          'Add Limit',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+        ),
       ),
 
       body: StreamBuilder<QuerySnapshot>(
-        stream: firestore.collection('expense_limits').snapshots(),
+        stream: firestore
+            .collection('expense_limits')
+            .where(
+              'workspaceId',
+              isEqualTo: WorkspaceContext.currentWorkspaceId,
+            )
+            .snapshots(),
 
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -308,103 +330,277 @@ class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
           final docs = snapshot.data!.docs;
 
           if (docs.isEmpty) {
-            return const Center(child: Text('No Expense Limits'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.account_balance_wallet_outlined,
+                    size: 80,
+                    color: Colors.grey.shade400,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No Expense Limits',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Tap Add Limit to create one',
+                    style: TextStyle(color: Colors.grey.shade500),
+                  ),
+                ],
+              ),
+            );
           }
 
-          return ListView.builder(
+          return ListView(
             padding: const EdgeInsets.all(18),
-
-            itemCount: docs.length,
-
-            itemBuilder: (context, index) {
-              final document = docs[index];
-
-              return Container(
-                margin: const EdgeInsets.only(bottom: 14),
-
-                padding: const EdgeInsets.all(18),
-
+            children: [
+              Container(
+                margin: const EdgeInsets.only(bottom: 22),
+                padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-
-                  borderRadius: BorderRadius.circular(24),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFF59E0B), Color(0xFFF97316)],
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.orange.withValues(alpha: 0.25),
+                      blurRadius: 24,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
                 ),
-
                 child: Row(
                   children: [
                     Container(
-                      height: 52,
-
-                      width: 52,
-
+                      height: 60,
+                      width: 60,
                       decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.12),
-
-                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(18),
                       ),
-
                       child: const Center(
-                        child: Text('💸', style: TextStyle(fontSize: 22)),
+                        child: Text('💸', style: TextStyle(fontSize: 28)),
                       ),
                     ),
-
                     const SizedBox(width: 16),
-
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-
                         children: [
-                          Text(
-                            document['category'],
-
-                            style: const TextStyle(
-                              fontSize: 16,
-
-                              fontWeight: FontWeight.bold,
+                          const Text(
+                            'Expense Limits',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
-
-                          const SizedBox(height: 6),
-
+                          const SizedBox(height: 4),
                           Text(
-                            document['person'],
-
-                            style: TextStyle(color: Colors.grey.shade600),
+                            '${docs.length} Active Limits',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
                     ),
-
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-
-                      children: [
-                        Text(
-                          '₹${document['limit'].toStringAsFixed(0)}',
-
-                          style: const TextStyle(
-                            fontSize: 18,
-
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        GestureDetector(
-                          onTap: () {
-                            openLimitSheet(document: document);
-                          },
-
-                          child: const Icon(Icons.edit_rounded),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
-              );
-            },
+              ),
+
+              ...docs.map((document) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 58,
+                        width: 58,
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: const Center(
+                          child: Text('💸', style: TextStyle(fontSize: 24)),
+                        ),
+                      ),
+
+                      const SizedBox(width: 16),
+
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              document['category'],
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+
+                            const SizedBox(height: 6),
+
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                document['person'],
+                                style: TextStyle(
+                                  color: Colors.grey.shade700,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '₹${document['limit'].toStringAsFixed(0)}',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          PopupMenuButton<String>(
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+
+                            icon: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.more_horiz_rounded,
+                                size: 18,
+                              ),
+                            ),
+
+                            onSelected: (value) async {
+                              if (value == 'edit') {
+                                openLimitSheet(document: document);
+                              }
+
+                              if (value == 'delete') {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(24),
+                                      ),
+                                      title: const Text('Delete Limit?'),
+                                      content: const Text(
+                                        'Are you sure you want to delete this expense limit?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(dialogContext, false);
+                                          },
+                                          child: const Text('Cancel'),
+                                        ),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red,
+                                          ),
+                                          onPressed: () {
+                                            Navigator.pop(dialogContext, true);
+                                          },
+                                          child: const Text(
+                                            'Delete',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+
+                                if (confirm == true) {
+                                  await firestore
+                                      .collection('expense_limits')
+                                      .doc(document.id)
+                                      .delete();
+                                }
+                              }
+                            },
+
+                            itemBuilder: (_) => const [
+                              PopupMenuItem(
+                                value: 'edit',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.edit_outlined),
+                                    SizedBox(width: 10),
+                                    Text('Edit'),
+                                  ],
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red,
+                                    ),
+                                    SizedBox(width: 10),
+                                    Text('Delete'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
           );
         },
       ),

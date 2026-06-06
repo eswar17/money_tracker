@@ -49,12 +49,26 @@ class TransactionCard extends StatelessWidget {
     ];
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      margin: const EdgeInsets.only(bottom: 8),
+
+      padding: const EdgeInsets.all(AppSpacing.sm),
 
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: AppColors.divider.withValues(alpha: 0.4)),
-        ),
+        color: Colors.white,
+
+        borderRadius: BorderRadius.circular(14),
+
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.30)),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+
+            blurRadius: 8,
+
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
 
       child: Row(
@@ -114,79 +128,80 @@ class TransactionCard extends StatelessWidget {
                       ),
                     ),
 
-                    PopupMenuButton<String>(
-                      tooltip: '',
+                    // PopupMenuButton<String>(
+                    //   tooltip: '',
 
-                      padding: EdgeInsets.zero,
+                    //   padding: EdgeInsets.zero,
 
-                      color: Colors.white,
+                    //   color: Colors.white,
 
-                      elevation: 8,
+                    //   elevation: 8,
 
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                    //   shape: RoundedRectangleBorder(
+                    //     borderRadius: BorderRadius.circular(16),
+                    //   ),
 
-                      icon: Container(
-                        padding: const EdgeInsets.all(6),
+                    //   icon: Container(
+                    //     padding: const EdgeInsets.all(6),
 
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                    //     decoration: BoxDecoration(
+                    //       color: Colors.grey.shade100,
 
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                    //       borderRadius: BorderRadius.circular(10),
+                    //     ),
 
-                        child: Icon(
-                          Icons.more_horiz_rounded,
+                    //     child: Icon(
+                    //       Icons.more_horiz_rounded,
 
-                          size: 18,
+                    //       size: 18,
 
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
+                    //       color: Colors.grey.shade700,
+                    //     ),
+                    //   ),
 
-                      onSelected: (value) {
-                        if (value == AppStrings.edit) {
-                          onEdit();
-                        }
+                    //   onSelected: (value) {
+                    //     if (value == AppStrings.edit) {
+                    //       onEdit();
+                    //     }
 
-                        if (value == AppStrings.delete) {
-                          onDelete();
-                        }
-                      },
+                    //     if (value == AppStrings.delete) {
+                    //       onDelete();
+                    //     }
+                    //   },
 
-                      itemBuilder: (context) {
-                        return [
-                          const PopupMenuItem(
-                            value: AppStrings.edit,
+                    //   itemBuilder: (context) {
+                    //     return [
+                    //       const PopupMenuItem(
+                    //         value: AppStrings.edit,
 
-                            child: Row(
-                              children: [
-                                Icon(Icons.edit_outlined, size: 18),
+                    //         child: Row(
+                    //           children: [
+                    //             Icon(Icons.edit_outlined, size: 18),
 
-                                SizedBox(width: 10),
+                    //             SizedBox(width: 10),
 
-                                Text(AppStrings.edit),
-                              ],
-                            ),
-                          ),
+                    //             Text(AppStrings.edit),
+                    //           ],
+                    //         ),
+                    //       ),
 
-                          const PopupMenuItem(
-                            value: AppStrings.delete,
+                    //       const PopupMenuItem(
+                    //         value: AppStrings.delete,
 
-                            child: Row(
-                              children: [
-                                Icon(Icons.delete_outline, size: 18),
+                    //         child: Row(
+                    //           children: [
+                    //             Icon(Icons.delete_outline, size: 18),
 
-                                SizedBox(width: 10),
+                    //             SizedBox(width: 10),
 
-                                Text(AppStrings.delete),
-                              ],
-                            ),
-                          ),
-                        ];
-                      },
-                    ),
+                    //             Text(AppStrings.delete),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ];
+                    //   },
+                    // ),
+                  
                   ],
                 ),
 

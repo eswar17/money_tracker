@@ -13,7 +13,8 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  const DashboardScreen({super.key, required this.scaffoldKey});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -84,8 +85,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
 
-      drawer: const AppDrawer(),
-
+      //drawer: const AppDrawer(),
       body: SafeArea(
         child: FutureBuilder<Map<String, dynamic>>(
           future: dashboardFuture,
@@ -121,7 +121,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         builder: (context) {
                           return MenuButton(
                             onTap: () {
-                              Scaffold.of(context).openDrawer();
+                              widget.scaffoldKey.currentState?.openDrawer();
                             },
                           );
                         },
@@ -242,10 +242,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     builder: (context, snapshot) {
                       final persons = snapshot.data ?? [];
 
-                      final filters = [
-                        'All',
-                        ...persons.map((e) => e.title),
-                      ];
+                      final filters = ['All', ...persons.map((e) => e.title)];
 
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,

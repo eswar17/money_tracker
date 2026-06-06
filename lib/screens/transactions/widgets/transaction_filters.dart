@@ -78,19 +78,19 @@ class TransactionFilters extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: _typeDropdown()),
+            Expanded(flex: 6, child: _typeDropdown()),
 
             const SizedBox(width: 6),
 
-            Expanded(child: _categoryDropdown()),
+            Expanded(flex: 6, child: _categoryDropdown()),
 
             const SizedBox(width: 6),
 
-            Expanded(child: _detailDropdown()),
+            Expanded(flex: 6, child: _detailDropdown()),
 
             const SizedBox(width: 6),
 
-            Expanded(child: _personDropdown()),
+            Expanded(flex: 5, child: _tagDropdown()),
           ],
         ),
 
@@ -98,11 +98,16 @@ class TransactionFilters extends StatelessWidget {
 
         Row(
           children: [
-            Expanded(child: _paymentDropdown()),
+            Expanded(flex: 7, child: _personDropdown()),
+
+            const SizedBox(width: 6),
+
+            Expanded(flex: 7, child: _paymentDropdown()),
 
             const SizedBox(width: 6),
 
             Expanded(
+              flex: 5,
               child: _dateBox(
                 label: startDate != null
                     ? '${startDate!.day}/${startDate!.month}'
@@ -115,6 +120,7 @@ class TransactionFilters extends StatelessWidget {
             const SizedBox(width: 6),
 
             Expanded(
+              flex: 5,
               child: _dateBox(
                 label: endDate != null
                     ? '${endDate!.day}/${endDate!.month}'
@@ -123,10 +129,6 @@ class TransactionFilters extends StatelessWidget {
                 onTap: onEndDateTap,
               ),
             ),
-
-            const SizedBox(width: 6),
-
-            Expanded(child: _tagDropdown()),
           ],
         ),
 
@@ -169,14 +171,26 @@ class TransactionFilters extends StatelessWidget {
 
   Widget _compactBox({required Widget child}) {
     return Container(
-      height: 38,
+      height: 46,
 
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(14),
+
+        border: Border.all(color: AppColors.border),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+
+            blurRadius: 8,
+
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
 
       child: child,

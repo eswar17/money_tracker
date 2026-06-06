@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:money_tracker/services/workspace/workspace_context.dart';
+import 'package:money_tracker/theme/app_colors.dart';
 
 import '../../constants/firestore_collections.dart';
 import '../../models/transaction_model.dart';
@@ -223,6 +224,21 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Color buttonColor;
+
+    switch (selectedType) {
+      case 'Income':
+        buttonColor = AppColors.income;
+        break;
+
+      case 'Transfer':
+        buttonColor = AppColors.transfer;
+        break;
+
+      default:
+        buttonColor = AppColors.expense;
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
 
@@ -522,7 +538,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 onPressed: saveTransaction,
 
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: buttonColor,
 
                   elevation: 0,
 
@@ -555,6 +571,21 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   Widget typeButton(String type) {
     final bool isSelected = selectedType == type;
 
+    Color activeColor;
+
+    switch (type) {
+      case 'Income':
+        activeColor = AppColors.income; // Green
+        break;
+
+      case 'Transfer':
+        activeColor = AppColors.transfer; // Blue
+        break;
+
+      default:
+        activeColor = AppColors.expense; // Red Expense
+    }
+
     return Expanded(
       child: GestureDetector(
         onTap: () {
@@ -562,32 +593,22 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             selectedType = type;
 
             selectedCategoryId = null;
-
             selectedCategoryName = null;
 
             selectedDetailId = null;
-
             selectedDetail = null;
 
             detailList = [];
           });
         },
 
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+
           padding: const EdgeInsets.symmetric(vertical: 10),
 
           decoration: BoxDecoration(
-            gradient: isSelected
-                ? const LinearGradient(
-                    colors: [Color(0xFF2E7D32), Color(0xFF43A047)],
-
-                    begin: Alignment.topLeft,
-
-                    end: Alignment.bottomRight,
-                  )
-                : null,
-
-            color: isSelected ? null : Colors.transparent,
+            color: isSelected ? activeColor : Colors.transparent,
 
             borderRadius: BorderRadius.circular(30),
           ),
@@ -597,7 +618,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               type,
 
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black,
+                color: isSelected ? Colors.white : Colors.black87,
 
                 fontSize: 12,
 
@@ -766,5 +787,4 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       },
     );
   }
-  
 }
