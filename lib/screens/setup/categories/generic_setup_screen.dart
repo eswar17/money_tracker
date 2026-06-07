@@ -2,6 +2,7 @@
 // ONLY REPLACE GenericSetupScreen UI WITH THIS PREMIUM VERSION
 
 import 'package:flutter/material.dart';
+import 'package:money_tracker/helpers/app_emoji_helper.dart';
 import 'package:money_tracker/theme/app_spacing.dart';
 
 import '../../../constants/app_strings.dart';
@@ -224,19 +225,17 @@ class _GenericSetupScreenState extends State<GenericSetupScreen> {
               Container(
                 height: 52,
                 width: 52,
-
                 decoration: BoxDecoration(
                   color: const Color(0xFF16A34A).withValues(alpha: 0.10),
-
                   borderRadius: BorderRadius.circular(16),
                 ),
-
-                child: const Icon(
-                  Icons.folder_open_rounded,
-                  color: Color(0xFF16A34A),
+                child: Center(
+                  child: Text(
+                    AppEmojiHelper.getEmoji(item.title),
+                    style: const TextStyle(fontSize: 26),
+                  ),
                 ),
               ),
-
               const SizedBox(width: 14),
 
               Expanded(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:money_tracker/screens/loans/loans_screen.dart';
 import '../constants/app_strings.dart';
 import '../screens/setup/setup_screen.dart';
 import '../screens/dashboard/placeholder_screen.dart';
@@ -202,7 +203,7 @@ class AppDrawer extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -276,6 +277,21 @@ class AppDrawer extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (_) => const CategoryAnalysisScreen(),
                         ),
+                      );
+                    },
+                  ),
+
+                  _drawerTile(
+                    context,
+                    icon: Icons.pie_chart_rounded,
+                    iconColor: const Color(0xFF8B5CF6),
+                    title: AppStrings.emiLoans,
+                    onTap: () {
+                      Navigator.pop(context);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoansScreen()),
                       );
                     },
                   ),

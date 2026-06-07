@@ -13,7 +13,7 @@ class AppEmojiHelper {
     'Bank Move': '🏦',
 
     // Main Categories
-    'Food': '🍽️',
+    'Food': '🥗',
     'Transport': '🚗',
     'Health': '🏥',
     'Household': '🏠',
@@ -32,6 +32,7 @@ class AppEmojiHelper {
     'Rewards': '🏆',
     'Gift': '🎁',
     'Gifts': '🎁',
+    'Family Support': '👨‍👩‍👧‍👦',
 
     // Food Details
     'Junk Food': '🍔',

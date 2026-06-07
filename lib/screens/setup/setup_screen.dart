@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:money_tracker/screens/setup/persons/persons_screen.dart';
 
 import '../../constants/app_strings.dart';
 import '../../constants/firestore_collections.dart';
@@ -142,10 +143,11 @@ class SetupScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => GenericSetupScreen(
-                      title: AppStrings.persons,
-                      collection: FirestoreCollections.persons,
-                    ),
+                    builder: (_) => PersonsScreen(),
+                    // GenericSetupScreen(
+                    //   title: AppStrings.persons,
+                    //   collection: FirestoreCollections.persons,
+                    // ),
                   ),
                 );
               },

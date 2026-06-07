@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:money_tracker/helpers/app_emoji_helper.dart';
 import 'package:money_tracker/services/workspace/workspace_context.dart';
 import 'package:money_tracker/theme/app_colors.dart';
 
@@ -222,6 +223,284 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     Navigator.pop(context, true);
   }
 
+  Future<void> openCategoryPicker() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection(categoryCollection)
+        .where('workspaceId', isEqualTo: WorkspaceContext.currentWorkspaceId)
+        .get();
+
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+
+      builder: (context) {
+        return SafeArea(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.75,
+
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                const Text(
+                  'Select Category',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+                ),
+
+                const SizedBox(height: 12),
+
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: snapshot.docs.length,
+
+                    itemBuilder: (context, index) {
+                      final doc = snapshot.docs[index];
+
+                      final data = doc.data() as Map<String, dynamic>;
+
+                      return ListTile(
+                        leading: Text(
+                          AppEmojiHelper.getEmoji(data['title']),
+                          style: const TextStyle(fontSize: 24),
+                        ),
+
+                        title: Text(
+                          data['title'],
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+
+                        trailing: const Icon(Icons.chevron_right_rounded),
+
+                        onTap: () {
+                          setState(() {
+                            selectedCategoryId = doc.id;
+
+                            selectedCategoryName = data['title'];
+
+                            selectedDetail = null;
+                            selectedDetailId = null;
+                          });
+
+                          loadDetails(doc.id);
+
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> openPicker({
+    required String title,
+    required List<Map<String, dynamic>> items,
+    required Function(Map<String, dynamic>) onSelected,
+  }) async {
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+
+      builder: (context) {
+        return SafeArea(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.75,
+
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: items.length,
+
+                    itemBuilder: (context, index) {
+                      final item = items[index];
+
+                      return ListTile(
+                        leading: Text(
+                          AppEmojiHelper.getEmoji(item['title']),
+                          style: const TextStyle(fontSize: 24),
+                        ),
+
+                        title: Text(
+                          item['title'],
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+
+                        trailing: const Icon(Icons.chevron_right_rounded),
+
+                        onTap: () {
+                          onSelected(item);
+
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> openPaymentPicker() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection(FirestoreCollections.paymentMethods)
+        .where('workspaceId', isEqualTo: WorkspaceContext.currentWorkspaceId)
+        .get();
+
+    final items = snapshot.docs.map((doc) {
+      final data = doc.data();
+
+      return {'id': doc.id, 'title': data['title']};
+    }).toList();
+
+    await openPicker(
+      title: 'Select Payment Method',
+
+      items: items,
+
+      onSelected: (item) {
+        setState(() {
+          selectedPaymentMethodId = item['id'];
+
+          selectedPaymentMethodName = item['title'];
+        });
+      },
+    );
+  }
+
+  Future<void> openPersonPicker() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection(FirestoreCollections.persons)
+        .where('workspaceId', isEqualTo: WorkspaceContext.currentWorkspaceId)
+        .get();
+
+    final items = snapshot.docs.map((doc) {
+      final data = doc.data();
+
+      return {'id': doc.id, 'title': data['title']};
+    }).toList();
+
+    await openPicker(
+      title: 'Select Person',
+
+      items: items,
+
+      onSelected: (item) {
+        setState(() {
+          selectedPersonId = item['id'];
+
+          selectedPersonName = item['title'];
+        });
+      },
+    );
+  }
+
+  Future<void> openTagPicker() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection(FirestoreCollections.tags)
+        .where('workspaceId', isEqualTo: WorkspaceContext.currentWorkspaceId)
+        .get();
+
+    final items = snapshot.docs.map((doc) {
+      final data = doc.data();
+
+      return {'id': doc.id, 'title': data['title']};
+    }).toList();
+
+    await openPicker(
+      title: 'Select Tag',
+
+      items: items,
+
+      onSelected: (item) {
+        setState(() {
+          selectedTagId = item['id'];
+
+          selectedTagName = item['title'];
+        });
+      },
+    );
+  }
+
+  Future<void> openDetailPicker() async {
+    if (detailList.isEmpty) return;
+
+    final items = detailList.map((detail) {
+      return {'id': detail['id'], 'title': detail['name']};
+    }).toList();
+
+    await openPicker(
+      title: 'Select Detail',
+
+      items: items,
+
+      onSelected: (item) {
+        setState(() {
+          selectedDetailId = item['id'];
+
+          selectedDetail = item['title'];
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Color buttonColor;
@@ -307,174 +586,62 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             const SizedBox(height: 14),
 
             // CATEGORY
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection(categoryCollection)
-                  .where(
-                    'workspaceId',
-                    isEqualTo: WorkspaceContext.currentWorkspaceId,
-                  )
-                  .snapshots(),
-
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final docs = snapshot.data!.docs;
-
-                return modernDropdown<String>(
-                  icon: Icons.category_rounded,
-
-                  iconColor: Colors.green,
-
-                  hint: 'Select Category*',
-
-                  value: selectedCategoryId,
-
-                  items: docs.map((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
-
-                    return DropdownMenuItem<String>(
-                      value: doc.id,
-
-                      child: Text(data['title']),
-                    );
-                  }).toList(),
-
-                  onChanged: (value) {
-                    if (value == null) {
-                      return;
-                    }
-
-                    final selectedDoc = docs.firstWhere(
-                      (doc) => doc.id == value,
-                    );
-
-                    final selectedData =
-                        selectedDoc.data() as Map<String, dynamic>;
-
-                    setState(() {
-                      selectedCategoryId = selectedDoc.id;
-
-                      selectedCategoryName = selectedData['title'];
-
-                      selectedDetail = null;
-
-                      selectedDetailId = null;
-                    });
-
-                    loadDetails(value);
-                  },
-                );
-              },
+            pickerTile(
+              title: 'Category',
+              value: selectedCategoryName ?? '',
+              emoji: selectedCategoryName == null
+                  ? '📂'
+                  : AppEmojiHelper.getEmoji(selectedCategoryName),
+              onTap: openCategoryPicker,
             ),
 
             const SizedBox(height: 14),
 
             // DETAIL
-            modernDropdown<String>(
-              icon: Icons.receipt_long_rounded,
-
-              iconColor: Colors.orange,
-
-              hint: 'Select Detail*',
-
-              value: selectedDetailId,
-
-              items: detailList.map((detail) {
-                return DropdownMenuItem<String>(
-                  value: detail['id'],
-                  child: Text(detail['name']),
-                );
-              }).toList(),
-
-              onChanged: (value) {
-                setState(() {
-                  if (value == null) {
-                    return;
-                  }
-
-                  final selected = detailList.firstWhere(
-                    (e) => e['id'] == value,
-                  );
-
-                  setState(() {
-                    selectedDetailId = selected['id'];
-
-                    selectedDetail = selected['name'];
-                  });
-                });
-              },
+            pickerTile(
+              title: 'Detail',
+              value: selectedDetail ?? '',
+              emoji: selectedDetail == null
+                  ? '🧾'
+                  : AppEmojiHelper.getEmoji(selectedDetail),
+              onTap: openDetailPicker,
             ),
 
             const SizedBox(height: 14),
 
             // PAYMENT
-            firestoreDropdown(
-              collection: FirestoreCollections.paymentMethods,
-
-              label: 'Select Payment Method*',
-
-              icon: Icons.account_balance_wallet_rounded,
-
-              iconColor: Colors.blue,
-
-              value: selectedPaymentMethodId,
-
-              onChanged: (id, name) {
-                setState(() {
-                  selectedPaymentMethodId = id;
-
-                  selectedPaymentMethodName = name;
-                });
-              },
+            pickerTile(
+              title: 'Payment',
+              value: selectedPaymentMethodName ?? '',
+              emoji: selectedPaymentMethodName == null
+                  ? '💰'
+                  : AppEmojiHelper.getEmoji(selectedPaymentMethodName),
+              onTap: openPaymentPicker,
             ),
 
             const SizedBox(height: 14),
 
             // PERSON
-            firestoreDropdown(
-              collection: FirestoreCollections.persons,
-
-              label: 'Select Person*',
-
-              icon: Icons.people_alt_rounded,
-
-              iconColor: Colors.deepPurple,
-
-              value: selectedPersonId,
-
-              onChanged: (id, name) {
-                setState(() {
-                  selectedPersonId = id;
-
-                  selectedPersonName = name;
-                });
-              },
+            pickerTile(
+              title: 'Person',
+              value: selectedPersonName ?? '',
+              emoji: '👨',
+              // selectedPersonName == null
+              //     ? '👥'
+              //     : AppEmojiHelper.getEmoji(selectedPersonName),
+              onTap: openPersonPicker,
             ),
 
             const SizedBox(height: 14),
 
             // TAG
-            firestoreDropdown(
-              collection: FirestoreCollections.tags,
-
-              label: 'Select Tag (Optional)',
-
-              icon: Icons.sell_rounded,
-
-              iconColor: const Color.fromARGB(255, 23, 75, 73),
-
-              value: selectedTagId,
-
-              onChanged: (id, name) {
-                setState(() {
-                  selectedTagId = id;
-
-                  selectedTagName = name;
-                });
-              },
+            pickerTile(
+              title: 'Tag',
+              value: selectedTagName ?? '',
+              emoji: selectedTagName == null
+                  ? '🏷️'
+                  : AppEmojiHelper.getEmoji(selectedTagName),
+              onTap: openTagPicker,
             ),
 
             const SizedBox(height: 14),
@@ -495,35 +662,17 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             const SizedBox(height: 12),
 
             // DATE
-            GestureDetector(
+            pickerTile(
+              title: 'Date',
+
+              value:
+                  '${selectedDate.day.toString().padLeft(2, '0')}/'
+                  '${selectedDate.month.toString().padLeft(2, '0')}/'
+                  '${selectedDate.year}',
+
+              emoji: '📅',
+
               onTap: pickDate,
-
-              child: Container(
-                padding: const EdgeInsets.all(16),
-
-                decoration: BoxDecoration(
-                  color: Colors.white,
-
-                  borderRadius: BorderRadius.circular(20),
-                ),
-
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_month_rounded, color: Colors.black),
-
-                    const SizedBox(width: 12),
-
-                    Text(
-                      '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
 
             const SizedBox(height: 20),
@@ -678,113 +827,203 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     );
   }
 
-  Widget modernDropdown<T>({
-    required IconData icon,
-
-    required Color iconColor,
-
-    required String hint,
-
-    required T? value,
-
-    required List<DropdownMenuItem<T>> items,
-
-    required Function(T?) onChanged,
+  Widget pickerTile({
+    required String title,
+    required String value,
+    required String emoji,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+    final bool hasValue = value.trim().isNotEmpty;
 
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return GestureDetector(
+      onTap: onTap,
 
-        borderRadius: BorderRadius.circular(20),
-      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
 
-      child: DropdownButtonFormField<T>(
-        value: value,
+        decoration: BoxDecoration(
+          color: Colors.white,
 
-        items: items,
+          borderRadius: BorderRadius.circular(22),
 
-        onChanged: onChanged,
+          border: Border.all(color: Colors.grey.shade200),
 
-        decoration: InputDecoration(
-          border: InputBorder.none,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
 
-          icon: Icon(icon, color: iconColor),
+        child: Row(
+          children: [
+            Container(
+              height: 46,
+              width: 46,
 
-          hintText: hint,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
 
-          hintStyle: TextStyle(
-            color: Colors.grey.shade500,
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-          ),
+                borderRadius: BorderRadius.circular(14),
+              ),
+
+              child: Center(
+                child: Text(emoji, style: const TextStyle(fontSize: 22)),
+              ),
+            ),
+
+            const SizedBox(width: 14),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+
+                children: [
+                  Text(
+                    title.toUpperCase(),
+
+                    style: TextStyle(
+                      fontSize: 10,
+                      letterSpacing: 0.8,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  Text(
+                    hasValue ? value : 'Select $title',
+
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: hasValue ? Colors.black87 : Colors.grey.shade500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Container(
+              height: 32,
+              width: 32,
+
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                shape: BoxShape.circle,
+              ),
+
+              child: const Icon(Icons.chevron_right_rounded, size: 20),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget firestoreDropdown({
-    required String collection,
-    required String label,
-    required IconData icon,
-    required Color iconColor,
-    required String? value,
-    required Function(String id, String name) onChanged,
-  }) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection(collection)
-          .where('workspaceId', isEqualTo: WorkspaceContext.currentWorkspaceId)
-          .snapshots(),
+  Widget datePickerTile() {
+    return GestureDetector(
+      onTap: pickDate,
 
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
 
-        final docs = snapshot.data!.docs;
+        decoration: BoxDecoration(
+          color: Colors.white,
 
-        String? dropdownValue = value;
+          borderRadius: BorderRadius.circular(22),
 
-        final exists = docs.any((doc) => doc.id == value);
+          border: Border.all(color: Colors.grey.shade200),
 
-        if (!exists) {
-          dropdownValue = null;
-        }
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
 
-        return modernDropdown<String>(
-          icon: icon,
+        child: Row(
+          children: [
+            Container(
+              height: 46,
+              width: 46,
 
-          iconColor: iconColor,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEEF8F0),
 
-          hint: label,
+                borderRadius: BorderRadius.circular(14),
+              ),
 
-          value: dropdownValue,
+              child: const Center(
+                child: Text('📅', style: TextStyle(fontSize: 22)),
+              ),
+            ),
 
-          items: docs.map((doc) {
-            final data = doc.data() as Map<String, dynamic>;
+            const SizedBox(width: 14),
 
-            return DropdownMenuItem<String>(
-              value: doc.id,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
 
-              child: Text(data['title']),
-            );
-          }).toList(),
+                children: [
+                  Text(
+                    'DATE',
 
-          onChanged: (value) {
-            if (value == null) {
-              return;
-            }
+                    style: TextStyle(
+                      fontSize: 10,
+                      letterSpacing: 0.8,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
 
-            final selectedDoc = docs.firstWhere((doc) => doc.id == value);
+                  const SizedBox(height: 4),
 
-            final selectedData = selectedDoc.data() as Map<String, dynamic>;
+                  Text(
+                    '${selectedDate.day.toString().padLeft(2, '0')}/'
+                    '${selectedDate.month.toString().padLeft(2, '0')}/'
+                    '${selectedDate.year}',
 
-            onChanged(selectedDoc.id, selectedData['title']);
-          },
-        );
-      },
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+
+              decoration: BoxDecoration(
+                color: const Color(0xFFEEF8F0),
+
+                borderRadius: BorderRadius.circular(12),
+              ),
+
+              child: const Text(
+                'Change',
+
+                style: TextStyle(
+                  color: Color(0xFF16A34A),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
+  
 }

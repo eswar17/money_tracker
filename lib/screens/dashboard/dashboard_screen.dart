@@ -242,7 +242,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     builder: (context, snapshot) {
                       final persons = snapshot.data ?? [];
 
-                      final filters = ['All', ...persons.map((e) => e.title)];
+                      // Dashboard Visible only
+                      final dashboardPersons = persons.where((person) {
+                        if (person.details.isEmpty) return false;
+
+                        return person.details.first['dashboardVisible'] == true;
+                      }).toList();
+
+                      // Sort by Dashboard Order
+                      dashboardPersons.sort((a, b) {
+                        final orderA =
+                            (a.details.first['dashboardOrder'] ?? 999) as int;
+
+                        final orderB =
+                            (b.details.first['dashboardOrder'] ?? 999) as int;
+
+                        return orderA.compareTo(orderB);
+                      });
+
+                      final filters = [
+                        'All',
+                        ...dashboardPersons.map((e) => e.title),
+                      ];
 
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
