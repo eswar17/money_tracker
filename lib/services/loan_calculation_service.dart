@@ -6,7 +6,7 @@ import './workspace/workspace_context.dart';
 class LoanCalculationService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  Future<Map<String, dynamic>> calculateLoans() async {
+  Future<Map<String, dynamic>> calculateLoans({DateTime? selectedMonth}) async {
     final workspaceId = WorkspaceContext.currentWorkspaceId!;
 
     final transactionsSnapshot = await firestore
@@ -46,6 +46,20 @@ class LoanCalculationService {
 
     for (final doc in transactions) {
       final data = doc.data();
+
+      if (selectedMonth != null) {
+        final month = data['month'] ?? 0;
+
+        final year = data['year'] ?? 0;
+
+        final bool isBeforeOrEqual =
+            year < selectedMonth.year ||
+            (year == selectedMonth.year && month <= selectedMonth.month);
+
+        if (!isBeforeOrEqual) {
+          continue;
+        }
+      }
 
       final category = (data['category'] ?? '').toString();
 

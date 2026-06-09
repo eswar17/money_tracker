@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:money_tracker/screens/expense_limits/expense_limits_screen.dart';
+import 'package:money_tracker/screens/loans/loans_screen.dart';
+import 'package:money_tracker/services/loan_calculation_service.dart';
 import 'package:money_tracker/services/workspace/workspace_context.dart';
 import '../../constants/firestore_collections.dart';
 import '../../models/setup_item_model.dart';
@@ -23,6 +26,8 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final DashboardService dashboardService = DashboardService();
   final SetupService setupService = SetupService();
+  final LoanCalculationService loanCalculationService =
+      LoanCalculationService();
 
   DateTime selectedMonth = DateTime.now();
 
@@ -89,7 +94,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: SafeArea(
         child: FutureBuilder<Map<String, dynamic>>(
           future: dashboardFuture,
-
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -292,7 +296,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Container(
                     width: double.infinity,
 
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(14),
 
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
@@ -309,7 +313,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ],
                       ),
 
-                      borderRadius: BorderRadius.circular(32),
+                      borderRadius: BorderRadius.circular(17),
 
                       boxShadow: [
                         BoxShadow(
@@ -419,38 +423,68 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         // =====================
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-
-                            vertical: 16,
+                            horizontal: 3,
+                            vertical: 5,
                           ),
-
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.12),
-
-                            borderRadius: BorderRadius.circular(22),
+                            borderRadius: BorderRadius.circular(17),
                           ),
-
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                             children: [
-                              balanceItem(
-                                title: 'Income',
-
-                                amount: (data['income'] ?? 0).toDouble(),
+                              Expanded(
+                                child: balanceItem(
+                                  title: 'Income',
+                                  amount: (data['income'] ?? 0).toDouble(),
+                                  icon: Icons.arrow_upward_rounded,
+                                  iconColor: Colors.green,
+                                ),
                               ),
 
-                              balanceItem(
-                                title: 'Expense',
+                              statDivider(),
 
-                                amount: (data['expense'] ?? 0).toDouble(),
+                              Expanded(
+                                child: balanceItem(
+                                  title: 'Expense',
+                                  amount: (data['expense'] ?? 0).toDouble(),
+                                  icon: Icons.arrow_downward_rounded,
+                                  iconColor: Colors.red,
+                                ),
                               ),
 
-                              balanceItem(
-                                title: 'Savings',
+                              statDivider(),
 
-                                amount: (data['savings'] ?? 0).toDouble(),
+                              Expanded(
+                                child: balanceItem(
+                                  title: 'Savings',
+                                  amount: (data['savings'] ?? 0).toDouble(),
+                                  icon: Icons.savings_rounded,
+                                  iconColor: Colors.deepPurple,
+                                ),
                               ),
+
+                              if (selectedPerson == 'All') ...[
+                                statDivider(),
+
+                                Expanded(
+                                  child: balanceItem(
+                                    title: 'Loans',
+                                    amount: (data['loanOutstanding'] ?? 0)
+                                        .toDouble(),
+                                    icon: Icons.account_balance_rounded,
+                                    iconColor: Colors.amber,
+                                    showViewDetails: true,
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const LoansScreen(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -460,11 +494,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 22),
 
                   // =====================
-                  // INCOME EXPENSE SAVINGS
-                  // =====================
-                  const SizedBox(height: 28),
-
-                  // =====================
                   // LIMITS
                   // =====================
                   Text('Expense Limits', style: AppTextStyles.heading3),
@@ -472,18 +501,86 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 16),
 
                   if ((data['expenseLimits'] ?? []).isEmpty)
-                    Container(
-                      width: double.infinity,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ExpenseLimitsScreen(),
+                          ),
+                        );
+                      },
 
-                      padding: const EdgeInsets.all(20),
+                      child: Container(
+                        width: double.infinity,
 
-                      decoration: BoxDecoration(
-                        color: Colors.white,
+                        padding: const EdgeInsets.all(20),
 
-                        borderRadius: BorderRadius.circular(22),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+
+                          borderRadius: BorderRadius.circular(22),
+                        ),
+
+                        child: Row(
+                          children: [
+                            Container(
+                              height: 54,
+                              width: 54,
+
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEFFAF2),
+
+                                shape: BoxShape.circle,
+                              ),
+
+                              child: const Icon(
+                                Icons.assignment_outlined,
+
+                                color: Color(0xFF7AD68A),
+
+                                size: 28,
+                              ),
+                            ),
+
+                            const SizedBox(width: 16),
+
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+
+                                children: [
+                                  Text(
+                                    'No Expense Limits',
+
+                                    style: AppTextStyles.bodyLarge.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 4),
+
+                                  Text(
+                                    'Set limits to manage your spending better',
+
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const Icon(
+                              Icons.chevron_right_rounded,
+
+                              color: Colors.grey,
+
+                              size: 28,
+                            ),
+                          ],
+                        ),
                       ),
-
-                      child: const Center(child: Text('No Expense Limits')),
                     )
                   else
                     ...((data['expenseLimits'] ?? []) as List).map((limitData) {
@@ -496,7 +593,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       );
                     }),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 16),
 
                   // =====================
                   // TOP CATEGORIES
@@ -739,26 +836,68 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget balanceItem({required String title, required double amount}) {
+  Widget balanceItem({
+    required String title,
+    required double amount,
+    required IconData icon,
+    required Color iconColor,
+
+    bool showViewDetails = false,
+
+    VoidCallback? onTap,
+  }) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
+
       children: [
         Text(
           title,
 
+          textAlign: TextAlign.center,
+
           style: AppTextStyles.bodySmall.copyWith(color: Colors.white70),
         ),
 
-        const SizedBox(height: 6),
+        const SizedBox(height: 5),
+
+        Container(
+          height: 24,
+          width: 24,
+
+          decoration: BoxDecoration(color: iconColor, shape: BoxShape.circle),
+
+          child: Icon(icon, color: Colors.white, size: 14),
+        ),
+
+        const SizedBox(height: 5),
 
         Text(
           '₹${amount.toStringAsFixed(0)}',
 
+          textAlign: TextAlign.center,
+
           style: AppTextStyles.bodyMedium.copyWith(
             color: Colors.white,
-
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
           ),
         ),
+
+        if (showViewDetails) ...[
+          const SizedBox(height: 1),
+
+          GestureDetector(
+            onTap: onTap,
+
+            child: Text(
+              'View Details',
+
+              style: AppTextStyles.bodySmall.copyWith(
+                color: Colors.white70,
+                //decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -859,6 +998,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       default:
         return '📊';
     }
+  }
+
+  Widget statDivider() {
+    return Container(
+      height: 55,
+      width: 1,
+      color: Colors.white.withOpacity(0.12),
+    );
   }
 
   Widget categoryTile({

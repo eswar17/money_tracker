@@ -4,6 +4,7 @@ import 'package:money_tracker/screens/loans/add_edit_emi_screen.dart';
 import 'package:money_tracker/services/loan_calculation_service.dart';
 import 'package:money_tracker/services/loan_config_service.dart';
 import 'package:money_tracker/services/workspace/workspace_context.dart';
+import 'package:intl/intl.dart';
 
 class LoansScreen extends StatefulWidget {
   const LoansScreen({super.key});
@@ -75,9 +76,19 @@ class _LoansScreenState extends State<LoansScreen> {
 
           final double emiOutstanding = data['emiOutstanding'];
 
-          List loans = List<Map<String, dynamic>>.from(data['loans']);
+          final allLoans = List<Map<String, dynamic>>.from(data['loans']);
 
-          int loanCount = (data['loans'] as List?)?.length ?? 0;
+          final activeLoans = allLoans
+              .where((e) => (e['outstanding'] as double) > 0)
+              .toList();
+
+          final closedLoans = allLoans
+              .where((e) => (e['outstanding'] as double) <= 0)
+              .toList();
+
+          List loans = activeLoans;
+
+          int loanCount = activeLoans.length;
 
           if (selectedFilter != 'All') {
             loans = loans.where((loan) {
@@ -111,7 +122,7 @@ class _LoansScreenState extends State<LoansScreen> {
                               cardColor: const Color(0xFFEFF4FF),
                               iconColor: const Color(0xFF2563EB),
                               subText:
-                                  '${loans.where((e) => e['loanType'] == 'bankLoan').length} Loans',
+                                  '${activeLoans.where((e) => e['loanType'] == 'bankLoan').length} Loans',
                             ),
                           ),
 
@@ -125,7 +136,7 @@ class _LoansScreenState extends State<LoansScreen> {
                               cardColor: const Color(0xFFFFF5EB),
                               iconColor: const Color(0xFFF97316),
                               subText:
-                                  '${loans.where((e) => e['loanType'] == 'emiPurchase').length} Loans',
+                                  '${activeLoans.where((e) => e['loanType'] == 'emiPurchase').length} Loans',
                             ),
                           ),
                         ],
@@ -143,7 +154,7 @@ class _LoansScreenState extends State<LoansScreen> {
                               cardColor: const Color(0xFFF5F0FF),
                               iconColor: const Color(0xFF7C3AED),
                               subText:
-                                  '${loans.where((e) => e['loanType'] == 'friendLoan').length} Loans',
+                                  '${activeLoans.where((e) => e['loanType'] == 'friendLoan').length} Loans',
                             ),
                           ),
 
@@ -156,8 +167,8 @@ class _LoansScreenState extends State<LoansScreen> {
                               amount: 0,
                               cardColor: const Color(0xFFEFFBF1),
                               iconColor: const Color(0xFF16A34A),
-                              customText: '05 Jul 2025',
-                              subText: '1 Loan',
+                              customText: '--',
+                              subText: 'No Due',
                             ),
                           ),
                         ],
@@ -172,7 +183,7 @@ class _LoansScreenState extends State<LoansScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
 
                   child: Text(
-                    'All Loans',
+                    'Active Loans',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                   ),
                 ),
@@ -208,6 +219,26 @@ class _LoansScreenState extends State<LoansScreen> {
                   ),
 
                 ...loans.map((loan) => _loanCard(loan)),
+                if (closedLoans.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'Closed Loans',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  ...closedLoans.map(
+                    (loan) => Opacity(opacity: .65, child: _loanCard(loan)),
+                  ),
+                ],
               ],
             ),
           );
@@ -220,7 +251,7 @@ class _LoansScreenState extends State<LoansScreen> {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.fromLTRB(24, 24, 16, 24),
-      constraints: const BoxConstraints(minHeight: 190),
+      constraints: const BoxConstraints(minHeight: 180),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(11),
         gradient: const LinearGradient(
@@ -258,10 +289,10 @@ class _LoansScreenState extends State<LoansScreen> {
                     const SizedBox(height: 16),
 
                     Text(
-                      '₹${amount.toStringAsFixed(0)}',
+                      '₹${formatAmount(amount)}',
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 42,
+                        fontSize: 35,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -494,7 +525,8 @@ class _LoansScreenState extends State<LoansScreen> {
                     const SizedBox(height: 6),
 
                     Text(
-                      '₹${(loan['outstanding'] as double).toStringAsFixed(0)}',
+                      // '₹${(loan['outstanding'] as double).toStringAsFixed(0)}',
+                      '₹${formatAmount(loan['outstanding'] as double)}',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w900,
@@ -704,7 +736,7 @@ class _LoansScreenState extends State<LoansScreen> {
 
                       detailName: loan['detailName'],
 
-                      totalAmount: loan['borrowed'],
+                      totalAmount: loan['totalAmount'],
 
                       emiAmount:
                           double.tryParse(emiAmountController.text.trim()) ?? 0,
@@ -780,7 +812,7 @@ class _LoansScreenState extends State<LoansScreen> {
           const SizedBox(height: 6),
 
           Text(
-            customText ?? '₹${amount.toStringAsFixed(0)}',
+            customText ?? '₹${formatAmount(amount)}',
             style: TextStyle(
               color: iconColor,
               fontSize: 18,
@@ -803,16 +835,34 @@ class _LoansScreenState extends State<LoansScreen> {
     );
   }
 
+  String formatAmount(double amount) {
+    return NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '',
+      decimalDigits: 0,
+    ).format(amount).trim();
+  }
+
   String getNextDueDate(int dueDay) {
     final now = DateTime.now();
 
-    DateTime dueDate;
+    var year = now.year;
+    var month = now.month;
 
-    if (now.day <= dueDay) {
-      dueDate = DateTime(now.year, now.month, dueDay);
-    } else {
-      dueDate = DateTime(now.year, now.month + 1, dueDay);
+    if (now.day > dueDay) {
+      month++;
+
+      if (month > 12) {
+        month = 1;
+        year++;
+      }
     }
+
+    final lastDay = DateTime(year, month + 1, 0).day;
+
+    final safeDay = dueDay > lastDay ? lastDay : dueDay;
+
+    final dueDate = DateTime(year, month, safeDay);
 
     const months = [
       'Jan',

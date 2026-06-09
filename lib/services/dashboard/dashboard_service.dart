@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:money_tracker/services/loan_calculation_service.dart';
 
 class DashboardService {
   Future<Map<String, dynamic>> getDashboardData(
@@ -266,7 +267,9 @@ class DashboardService {
     // =========================
     // RETURN
     // =========================
-
+    final loanData = await LoanCalculationService().calculateLoans(
+      selectedMonth: selectedMonth,
+    );
     return {
       'balance': balance,
 
@@ -281,6 +284,7 @@ class DashboardService {
       'expenseLimits': expenseLimits,
 
       'topCategories': topCategories.take(5).toList(),
+      'loanOutstanding': loanData['totalOutstanding'] ?? 0,
     };
   }
 }
