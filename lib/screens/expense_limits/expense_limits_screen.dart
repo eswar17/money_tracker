@@ -18,21 +18,27 @@ class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
     );
 
     String? selectedCategory;
-
     String? selectedCategoryId;
 
-    String? selectedPerson;
+    String? selectedDetail;
+    String? selectedDetailId;
 
+    String? selectedPerson;
     String? selectedPersonId;
+
+    List<Map<String, dynamic>> details = [];
 
     if (document != null) {
       selectedCategory = document['category'];
 
       selectedCategoryId = document['categoryId'];
 
+      selectedDetail = document['detail'];
+
       selectedPerson = document['person'];
 
       selectedPersonId = document['personId'];
+      selectedDetailId = document['detailId'];
     }
 
     final expenseCategories = await firestore
@@ -125,18 +131,67 @@ class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
                     }).toList(),
 
                     onChanged: (value) {
-                      final doc = expenseCategories.docs.firstWhere((element) {
-                        return element['title'] == value;
-                      });
+                      final doc = expenseCategories.docs.firstWhere(
+                        (element) => element['title'] == value,
+                      );
 
                       setSheetState(() {
                         selectedCategory = value;
 
                         selectedCategoryId = doc.id;
+
+                        selectedDetail = null;
+
+                        selectedDetailId = null;
+
+                        details = List<Map<String, dynamic>>.from(
+                          doc['details'] ?? [],
+                        );
                       });
                     },
                   ),
 
+                  const SizedBox(height: 18),
+
+                  const SizedBox(height: 18),
+
+                  DropdownButtonFormField<String>(
+                    value: selectedDetail,
+
+                    decoration: InputDecoration(
+                      labelText: 'Detail',
+
+                      filled: true,
+
+                      fillColor: const Color(0xFFF5F7FB),
+
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+
+                    items: details.map((detail) {
+                      return DropdownMenuItem<String>(
+                        value: detail['name'],
+
+                        child: Text(detail['name']),
+                      );
+                    }).toList(),
+
+                    onChanged: (value) {
+                      final detail = details.firstWhere(
+                        (e) => e['name'] == value,
+                      );
+
+                      setSheetState(() {
+                        selectedDetail = detail['name'];
+
+                        selectedDetailId = detail['id'];
+                      });
+                    },
+                  ),
                   const SizedBox(height: 18),
 
                   // =====================
@@ -226,6 +281,8 @@ class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
 
                       onPressed: () async {
                         if (selectedCategory == null ||
+                            selectedDetail == null ||
+                            selectedDetailId == null ||
                             selectedPerson == null ||
                             amountController.text.trim().isEmpty) {
                           return;
@@ -235,8 +292,7 @@ class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
                           amountController.text.trim(),
                         );
 
-                        final docId =
-                            '${selectedCategoryId}_${selectedPersonId}';
+                        final docId = '${selectedDetailId}_${selectedPersonId}';
 
                         await firestore
                             .collection('expense_limits')
@@ -247,6 +303,9 @@ class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
 
                               'category': selectedCategory,
                               'categoryId': selectedCategoryId,
+
+                              'detail': selectedDetail,
+                              'detailId': selectedDetailId,
 
                               'person': selectedPerson,
                               'personId': selectedPersonId,
@@ -454,7 +513,7 @@ class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              document['category'],
+                              document['detail'],
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,

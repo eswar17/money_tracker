@@ -33,6 +33,10 @@ class DashboardService {
 
     final Map<String, double> categoryLimits = {};
 
+    final Map<String, double> detailSpent = {};
+
+    final Map<String, double> detailLimits = {};
+
     // =========================
     // PERSON FILTER
     // =========================
@@ -132,10 +136,11 @@ class DashboardService {
         if (type == 'Expense') {
           monthExpense += amount;
 
-          categorySpent.putIfAbsent(data['category'], () => 0);
+          final detailId = data['detailId'] ?? '';
 
-          categorySpent[data['category']] =
-              categorySpent[data['category']]! + amount;
+          detailSpent.putIfAbsent(detailId, () => 0);
+
+          detailSpent[detailId] = detailSpent[detailId]! + amount;
         }
       }
 
@@ -164,7 +169,9 @@ class DashboardService {
     for (final doc in limitsSnapshot.docs) {
       final data = doc.data();
 
-      final String category = data['category'];
+      final String detail = data['detail'];
+
+      final String detailId = data['detailId'];
 
       final String person = data['person'];
 
@@ -175,9 +182,9 @@ class DashboardService {
       // =====================
 
       if (selectedPerson == 'All') {
-        categoryLimits.putIfAbsent(category, () => 0);
+        detailLimits.putIfAbsent(detail, () => 0);
 
-        categoryLimits[category] = categoryLimits[category]! + limit;
+        detailLimits[detail] = detailLimits[detail]! + limit;
 
         continue;
       }
@@ -191,9 +198,9 @@ class DashboardService {
           continue;
         }
 
-        categoryLimits.putIfAbsent(category, () => 0);
+        detailLimits.putIfAbsent(detail, () => 0);
 
-        categoryLimits[category] = categoryLimits[category]! + limit;
+        detailLimits[detail] = detailLimits[detail]! + limit;
 
         continue;
       }
@@ -203,16 +210,16 @@ class DashboardService {
       // =====================
 
       if (person == selectedPerson) {
-        categoryLimits.putIfAbsent(category, () => 0);
+        detailLimits.putIfAbsent(detail, () => 0);
 
-        categoryLimits[category] = categoryLimits[category]! + limit;
+        detailLimits[detail] = detailLimits[detail]! + limit;
       }
 
       // HALF BOTH LIMIT
       if (person == 'Both') {
-        categoryLimits.putIfAbsent(category, () => 0);
+        detailLimits.putIfAbsent(detail, () => 0);
 
-        categoryLimits[category] = categoryLimits[category]! + (limit / 2);
+        detailLimits[detail] = detailLimits[detail]! + (limit / 2);
       }
     }
 
@@ -222,13 +229,19 @@ class DashboardService {
 
     final List<Map<String, dynamic>> expenseLimits = [];
 
-    for (final category in categoryLimits.keys) {
+    for (final doc in limitsSnapshot.docs) {
+      final data = doc.data();
+
+      final detail = data['detail'];
+
+      final detailId = data['detailId'];
+
       expenseLimits.add({
-        'category': category,
+        'detail': detail,
 
-        'spent': categorySpent[category] ?? 0,
+        'spent': detailSpent[detailId] ?? 0,
 
-        'limit': categoryLimits[category] ?? 0,
+        'limit': (data['limit'] ?? 0).toDouble(),
       });
     }
 

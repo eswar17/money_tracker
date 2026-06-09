@@ -585,7 +585,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   else
                     ...((data['expenseLimits'] ?? []) as List).map((limitData) {
                       return limitTile(
-                        category: limitData['category'],
+                        category: limitData['detail'],
 
                         spent: (limitData['spent'] ?? 0).toDouble(),
 
