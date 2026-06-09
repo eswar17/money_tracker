@@ -77,6 +77,8 @@ class _LoansScreenState extends State<LoansScreen> {
 
           List loans = List<Map<String, dynamic>>.from(data['loans']);
 
+          int loanCount = (data['loans'] as List?)?.length ?? 0;
+
           if (selectedFilter != 'All') {
             loans = loans.where((loan) {
               return loan['loanType'] == selectedFilter;
@@ -92,29 +94,86 @@ class _LoansScreenState extends State<LoansScreen> {
               padding: const EdgeInsets.only(bottom: 100),
 
               children: [
-                _topSummaryCard(totalOutstanding),
+                _topSummaryCard(totalOutstanding, loanCount),
 
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
 
-                  child: Row(
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: _summaryCard('🏦', 'Bank', bankOutstanding),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _modernSummaryCard(
+                              icon: Icons.account_balance_rounded,
+                              title: 'Bank Loans',
+                              amount: bankOutstanding,
+                              cardColor: const Color(0xFFEFF4FF),
+                              iconColor: const Color(0xFF2563EB),
+                              subText:
+                                  '${loans.where((e) => e['loanType'] == 'bankLoan').length} Loans',
+                            ),
+                          ),
+
+                          const SizedBox(width: 6),
+
+                          Expanded(
+                            child: _modernSummaryCard(
+                              icon: Icons.phone_android_rounded,
+                              title: 'EMI Purchases',
+                              amount: emiOutstanding,
+                              cardColor: const Color(0xFFFFF5EB),
+                              iconColor: const Color(0xFFF97316),
+                              subText:
+                                  '${loans.where((e) => e['loanType'] == 'emiPurchase').length} Loans',
+                            ),
+                          ),
+                        ],
                       ),
 
-                      const SizedBox(width: 10),
+                      const SizedBox(height: 6),
 
-                      Expanded(
-                        child: _summaryCard('📱', 'EMI', emiOutstanding),
-                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _modernSummaryCard(
+                              icon: Icons.people_alt_rounded,
+                              title: 'Friend Loans',
+                              amount: friendOutstanding,
+                              cardColor: const Color(0xFFF5F0FF),
+                              iconColor: const Color(0xFF7C3AED),
+                              subText:
+                                  '${loans.where((e) => e['loanType'] == 'friendLoan').length} Loans',
+                            ),
+                          ),
 
-                      const SizedBox(width: 10),
+                          const SizedBox(width: 6),
 
-                      Expanded(
-                        child: _summaryCard('🤝', 'Friends', friendOutstanding),
+                          Expanded(
+                            child: _modernSummaryCard(
+                              icon: Icons.event_available_rounded,
+                              title: 'Upcoming Due',
+                              amount: 0,
+                              cardColor: const Color(0xFFEFFBF1),
+                              iconColor: const Color(0xFF16A34A),
+                              customText: '05 Jul 2025',
+                              subText: '1 Loan',
+                            ),
+                          ),
+                        ],
                       ),
                     ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+
+                  child: Text(
+                    'All Loans',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                   ),
                 ),
 
@@ -140,17 +199,6 @@ class _LoansScreenState extends State<LoansScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
-
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-
-                  child: Text(
-                    'All Loans',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
-                  ),
-                ),
-
                 const SizedBox(height: 12),
 
                 if (loans.isEmpty)
@@ -168,77 +216,75 @@ class _LoansScreenState extends State<LoansScreen> {
     );
   }
 
-  Widget _topSummaryCard(double amount) {
+  Widget _topSummaryCard(double amount, int loanCount) {
     return Container(
       margin: const EdgeInsets.all(16),
-
-      padding: const EdgeInsets.all(24),
-
+      padding: const EdgeInsets.fromLTRB(24, 24, 16, 24),
+      constraints: const BoxConstraints(minHeight: 190),
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(11),
         gradient: const LinearGradient(
-          colors: [Color(0xFF16A34A), Color(0xFF22C55E)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1E3A8A), Color(0xFF0F172A)],
         ),
-
-        borderRadius: BorderRadius.circular(30),
-
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF16A34A).withValues(alpha: 0.25),
-
-            blurRadius: 24,
-
-            offset: const Offset(0, 10),
+            color: Colors.blue.withValues(alpha: .25),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
           ),
         ],
       ),
-
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-
         children: [
-          const Text(
-            'Outstanding Debt',
-            style: TextStyle(color: Colors.white70, fontSize: 14),
-          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Total Outstanding',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
 
-          const SizedBox(height: 10),
+                    const SizedBox(height: 16),
 
-          Text(
-            '₹${amount.toStringAsFixed(0)}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 34,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+                    Text(
+                      '₹${amount.toStringAsFixed(0)}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 42,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
 
-  Widget _summaryCard(String emoji, String title, double amount) {
-    return Container(
-      padding: const EdgeInsets.all(16),
+                    const SizedBox(height: 12),
 
-      decoration: BoxDecoration(
-        color: Colors.white,
+                    Text(
+                      'Across $loanCount ${loanCount == 1 ? 'Loan' : 'Loans'}',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-        borderRadius: BorderRadius.circular(22),
-      ),
-
-      child: Column(
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 28)),
-
-          const SizedBox(height: 8),
-
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
-
-          const SizedBox(height: 4),
-
-          Text(
-            '₹${amount.toStringAsFixed(0)}',
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+              Image.asset(
+                'assets/images/bank_building.png',
+                height: 130,
+                fit: BoxFit.contain,
+              ),
+            ],
           ),
         ],
       ),
@@ -250,31 +296,39 @@ class _LoansScreenState extends State<LoansScreen> {
 
     String title = value;
 
-    if (value == 'bankLoan') {
-      title = 'Bank';
-    }
-
-    if (value == 'emiPurchase') {
-      title = 'EMI';
-    }
-
-    if (value == 'friendLoan') {
-      title = 'Friends';
-    }
+    if (value == 'bankLoan') title = '🏦 Bank';
+    if (value == 'emiPurchase') title = '📱 EMI';
+    if (value == 'friendLoan') title = '🤝 Friends';
 
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
-
-      child: ChoiceChip(
-        label: Text(title),
-
-        selected: selected,
-
-        onSelected: (_) {
+      padding: const EdgeInsets.only(right: 10),
+      child: GestureDetector(
+        onTap: () {
           setState(() {
             selectedFilter = value;
           });
         },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+          decoration: BoxDecoration(
+            color: selected ? const Color(0xFF2563EB) : Colors.white,
+            borderRadius: BorderRadius.circular(11),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: .05),
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: Text(
+            title,
+            style: TextStyle(
+              color: selected ? Colors.white : Colors.black87,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -324,17 +378,9 @@ class _LoansScreenState extends State<LoansScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
 
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(8),
 
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-
-              blurRadius: 18,
-
-              offset: const Offset(0, 4),
-            ),
-          ],
+          border: Border.all(color: const Color(0xFFE5E7EB)),
         ),
 
         child: Column(
@@ -343,108 +389,168 @@ class _LoansScreenState extends State<LoansScreen> {
           children: [
             Row(
               children: [
-                Text(emoji, style: const TextStyle(fontSize: 30)),
+                Container(
+                  width: 48,
+                  height: 48,
 
-                const SizedBox(width: 12),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: loan['loanType'] == 'emiPurchase'
+                        ? const Color(0xFFFFF1E8)
+                        : loan['loanType'] == 'bankLoan'
+                        ? const Color(0xFFEAF2FF)
+                        : const Color(0xFFF3EDFF),
+                  ),
+
+                  child: Icon(
+                    loan['loanType'] == 'emiPurchase'
+                        ? Icons.phone_android_rounded
+                        : loan['loanType'] == 'bankLoan'
+                        ? Icons.account_balance_rounded
+                        : Icons.people_alt_rounded,
+                    color: loan['loanType'] == 'emiPurchase'
+                        ? const Color(0xFFF97316)
+                        : loan['loanType'] == 'bankLoan'
+                        ? const Color(0xFF2563EB)
+                        : const Color(0xFF7C3AED),
+                  ),
+                ),
+
+                const SizedBox(width: 14),
 
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-
                     children: [
                       Text(
                         loan['loanName'],
                         style: const TextStyle(
-                          fontSize: 17,
+                          fontSize: 18,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
 
+                      const SizedBox(height: 3),
+
                       Text(
-                        loan['loanType'],
-                        style: TextStyle(color: Colors.grey.shade600),
+                        loan['detailName'],
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 15,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+
+                        decoration: BoxDecoration(
+                          color: loan['loanType'] == 'emiPurchase'
+                              ? const Color(0xFFFFF1E8)
+                              : loan['loanType'] == 'bankLoan'
+                              ? const Color(0xFFEAF2FF)
+                              : const Color(0xFFF3EDFF),
+
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+
+                        child: Text(
+                          loan['loanType'] == 'emiPurchase'
+                              ? 'EMI Purchase'
+                              : loan['loanType'] == 'bankLoan'
+                              ? 'Bank Loan'
+                              : 'Friend Loan',
+
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: loan['loanType'] == 'emiPurchase'
+                                ? const Color(0xFFF97316)
+                                : loan['loanType'] == 'bankLoan'
+                                ? const Color(0xFF2563EB)
+                                : const Color(0xFF7C3AED),
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
 
-                if (loan['reminderEnabled'] == true)
-                  const Icon(
-                    Icons.notifications_active_rounded,
-                    color: Colors.orange,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Outstanding',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 13,
+                      ),
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    Text(
+                      '₹${(loan['outstanding'] as double).toStringAsFixed(0)}',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: loan['loanType'] == 'emiPurchase'
+                            ? const Color(0xFFF97316)
+                            : loan['loanType'] == 'bankLoan'
+                            ? const Color(0xFF2563EB)
+                            : const Color(0xFF7C3AED),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(width: 6),
+
+                const Icon(Icons.chevron_right_rounded),
               ],
             ),
-
             const SizedBox(height: 18),
+
+            Divider(color: Colors.grey.shade200),
+
+            const SizedBox(height: 14),
 
             Row(
               children: [
-                Expanded(
-                  child: _metric(
-                    'Borrowed',
-                    '₹${((loan['borrowed'] as double) == 0 ? (loan['repaid'] as double) + (loan['outstanding'] as double) : (loan['borrowed'] as double)).toStringAsFixed(0)}',
-                  ),
+                Icon(
+                  Icons.calendar_month_outlined,
+                  size: 18,
+                  color: Colors.grey.shade700,
                 ),
 
-                Expanded(
-                  child: _metric(
-                    'Repaid',
-                    '₹${(loan['repaid'] as double).toStringAsFixed(0)}',
-                  ),
+                const SizedBox(width: 8),
+
+                Text(
+                  loan['emiAmount'] != null && (loan['emiAmount'] as num) > 0
+                      ? '₹${loan['emiAmount'].toStringAsFixed(0)} / month'
+                      : 'No EMI',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
 
-                Expanded(
-                  child: _metric(
-                    'Outstanding',
-                    '₹${(loan['outstanding'] as double).toStringAsFixed(0)}',
+                const Spacer(),
+
+                if (loan['dueDay'] != null)
+                  Text(
+                    'Due: ${getNextDueDate(loan['dueDay'])}',
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
               ],
             ),
-
-            if (loan['dueDay'] != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 14),
-
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.08),
-
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-
-                  child: Text(
-                    'Due on ${loan['dueDay']} of every month',
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _metric(String title, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-
-      children: [
-        Text(
-          title,
-          style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-        ),
-
-        const SizedBox(height: 4),
-
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w800)),
-      ],
     );
   }
 
@@ -457,6 +563,10 @@ class _LoansScreenState extends State<LoansScreen> {
     );
 
     final notesController = TextEditingController(text: existing?.notes ?? '');
+
+    final emiAmountController = TextEditingController(
+      text: (loan['emiAmount'] ?? 0).toString(),
+    );
 
     bool reminderEnabled = existing?.reminderEnabled ?? false;
 
@@ -475,7 +585,6 @@ class _LoansScreenState extends State<LoansScreen> {
           builder: (context, setDialogState) {
             return AlertDialog(
               title: Text(loan['loanName']),
-              
 
               content: SingleChildScrollView(
                 child: Column(
@@ -535,6 +644,17 @@ class _LoansScreenState extends State<LoansScreen> {
 
                     const SizedBox(height: 16),
 
+                    TextField(
+                      controller: emiAmountController,
+                      keyboardType: TextInputType.number,
+
+                      decoration: const InputDecoration(
+                        labelText: 'EMI Amount',
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
                     SwitchListTile(
                       value: reminderEnabled,
 
@@ -586,7 +706,8 @@ class _LoansScreenState extends State<LoansScreen> {
 
                       totalAmount: loan['borrowed'],
 
-                      emiAmount: 0,
+                      emiAmount:
+                          double.tryParse(emiAmountController.text.trim()) ?? 0,
 
                       dueDay: dueDay,
 
@@ -610,5 +731,104 @@ class _LoansScreenState extends State<LoansScreen> {
         );
       },
     );
+  }
+
+  Widget _modernSummaryCard({
+    required IconData icon,
+    required String title,
+    required double amount,
+    required Color cardColor,
+    required Color iconColor,
+    String? customText,
+    String? subText,
+  }) {
+    return Container(
+      height: 113,
+
+      padding: const EdgeInsets.all(16),
+
+      decoration: BoxDecoration(
+        color: cardColor,
+
+        borderRadius: BorderRadius.circular(11),
+
+        border: Border.all(color: iconColor.withValues(alpha: 0.15)),
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: iconColor, size: 26),
+
+              const SizedBox(width: 10),
+
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 6),
+
+          Text(
+            customText ?? '₹${amount.toStringAsFixed(0)}',
+            style: TextStyle(
+              color: iconColor,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+
+          const SizedBox(height: 2),
+
+          Text(
+            subText ?? '',
+            style: TextStyle(
+              color: Colors.grey.shade700,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String getNextDueDate(int dueDay) {
+    final now = DateTime.now();
+
+    DateTime dueDate;
+
+    if (now.day <= dueDay) {
+      dueDate = DateTime(now.year, now.month, dueDay);
+    } else {
+      dueDate = DateTime(now.year, now.month + 1, dueDay);
+    }
+
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    return '${dueDate.day.toString().padLeft(2, '0')}/${months[dueDate.month - 1]}/${dueDate.year}';
   }
 }

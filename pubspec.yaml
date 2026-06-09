@@ -58,6 +58,7 @@ flutter:
 
   assets:
     - assets/lottie/login_animation.json
+    - assets/images/bank_building.png
 
 flutter_icons:
   android: true
