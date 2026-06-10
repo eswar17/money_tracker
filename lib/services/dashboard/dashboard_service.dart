@@ -31,11 +31,7 @@ class DashboardService {
 
     final Map<String, double> categorySpent = {};
 
-    final Map<String, double> categoryLimits = {};
-
     final Map<String, double> detailSpent = {};
-
-    final Map<String, double> detailLimits = {};
 
     // =========================
     // PERSON FILTER
@@ -45,11 +41,6 @@ class DashboardService {
       // ALL
       if (selectedPerson == 'All') {
         return true;
-      }
-
-      // BOTH ONLY
-      if (selectedPerson == 'Both') {
-        return person == 'Both';
       }
 
       // ESWAR / LATHA
@@ -141,6 +132,16 @@ class DashboardService {
           detailSpent.putIfAbsent(detailId, () => 0);
 
           detailSpent[detailId] = detailSpent[detailId]! + amount;
+
+          // =====================
+          // TOP CATEGORIES
+          // =====================
+
+          final category = data['category'] ?? '';
+
+          categorySpent.putIfAbsent(category, () => 0);
+
+          categorySpent[category] = categorySpent[category]! + amount;
         }
       }
 
@@ -166,82 +167,126 @@ class DashboardService {
     // EXPENSE LIMITS
     // =========================
 
-    for (final doc in limitsSnapshot.docs) {
-      final data = doc.data();
+    // =========================
+    // EXPENSE LIMITS
+    // =========================
 
-      final String detail = data['detail'];
+    final List<Map<String, dynamic>> expenseLimits = [];
 
-      final String detailId = data['detailId'];
+    for (final limitDoc in limitsSnapshot.docs) {
+      final limitData = limitDoc.data();
 
-      final String person = data['person'];
+      final String limitPerson = limitData['person'] ?? '';
 
-      double limit = (data['limit'] ?? 0).toDouble();
+      final String detail = limitData['detail'] ?? '';
+
+      final String detailId = limitData['detailId'] ?? '';
+
+      final double limit = (limitData['limit'] ?? 0).toDouble();
+
+      // Ignore Both limits
+      if (limitPerson == 'Both') {
+        continue;
+      }
 
       // =====================
       // ALL
       // =====================
 
       if (selectedPerson == 'All') {
-        detailLimits.putIfAbsent(detail, () => 0);
+        double spent = 0;
 
-        detailLimits[detail] = detailLimits[detail]! + limit;
+        for (final transactionDoc in transactions) {
+          final tx = transactionDoc.data();
+
+          if ((tx['detailId'] ?? '') != detailId) {
+            continue;
+          }
+
+          if ((tx['type'] ?? '') != 'Expense') {
+            continue;
+          }
+
+          final int month = tx['month'] ?? 0;
+
+          final int year = tx['year'] ?? 0;
+
+          if (month != selectedMonth.month || year != selectedMonth.year) {
+            continue;
+          }
+
+          final String txPerson = tx['person'] ?? '';
+
+          final double amount = (tx['amount'] ?? 0).toDouble();
+
+          if (txPerson == limitPerson) {
+            spent += amount;
+          }
+
+          if (txPerson == 'Both') {
+            spent += amount / 2;
+          }
+        }
+
+        expenseLimits.add({
+          'person': limitPerson,
+          'detail': detail,
+          'detailId': detailId,
+          'spent': spent,
+          'limit': limit,
+        });
 
         continue;
       }
 
       // =====================
-      // BOTH ONLY
+      // INDIVIDUAL PERSON
       // =====================
 
-      if (selectedPerson == 'Both') {
-        if (person != 'Both') {
+      if (limitPerson != selectedPerson) {
+        continue;
+      }
+
+      double spent = 0;
+
+      for (final transactionDoc in transactions) {
+        final tx = transactionDoc.data();
+
+        if ((tx['detailId'] ?? '') != detailId) {
           continue;
         }
 
-        detailLimits.putIfAbsent(detail, () => 0);
+        if ((tx['type'] ?? '') != 'Expense') {
+          continue;
+        }
 
-        detailLimits[detail] = detailLimits[detail]! + limit;
+        final int month = tx['month'] ?? 0;
 
-        continue;
+        final int year = tx['year'] ?? 0;
+
+        if (month != selectedMonth.month || year != selectedMonth.year) {
+          continue;
+        }
+
+        final String txPerson = tx['person'] ?? '';
+
+        final double amount = (tx['amount'] ?? 0).toDouble();
+
+        if (txPerson == selectedPerson) {
+          spent += amount;
+        }
+
+        if (txPerson == 'Both') {
+          spent += amount / 2;
+        }
       }
-
-      // =====================
-      // ESWAR / LATHA
-      // =====================
-
-      if (person == selectedPerson) {
-        detailLimits.putIfAbsent(detail, () => 0);
-
-        detailLimits[detail] = detailLimits[detail]! + limit;
-      }
-
-      // HALF BOTH LIMIT
-      if (person == 'Both') {
-        detailLimits.putIfAbsent(detail, () => 0);
-
-        detailLimits[detail] = detailLimits[detail]! + (limit / 2);
-      }
-    }
-
-    // =========================
-    // BUILD LIMITS
-    // =========================
-
-    final List<Map<String, dynamic>> expenseLimits = [];
-
-    for (final doc in limitsSnapshot.docs) {
-      final data = doc.data();
-
-      final detail = data['detail'];
-
-      final detailId = data['detailId'];
 
       expenseLimits.add({
+        'person': limitPerson,
         'detail': detail,
-
-        'spent': detailSpent[detailId] ?? 0,
-
-        'limit': (data['limit'] ?? 0).toDouble(),
+        'detailId': detailId,
+        'spent': spent,
+        'limit': limit,
       });
     }
 
@@ -293,9 +338,7 @@ class DashboardService {
       'savings': savings,
 
       'percentageChange': percentageChange,
-
       'expenseLimits': expenseLimits,
-
       'topCategories': topCategories.take(5).toList(),
       'loanOutstanding': loanData['totalOutstanding'] ?? 0,
     };
