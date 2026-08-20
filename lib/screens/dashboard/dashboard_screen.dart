@@ -317,7 +317,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF6366F1).withOpacity(0.22),
+                          color: const Color(0xFF6366F1).withValues(alpha: 0.22),
 
                           blurRadius: 35,
 
@@ -427,7 +427,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.12),
+                            color: Colors.white.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(17),
                           ),
                           child: Row(
@@ -710,7 +710,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                   gradient: RadialGradient(
                     colors: [
-                      Colors.white.withOpacity(0.18),
+                      Colors.white.withValues(alpha: 0.18),
 
                       Colors.transparent,
                     ],
@@ -734,7 +734,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                   gradient: RadialGradient(
                     colors: [
-                      Color(0xFF8B5CF6).withOpacity(0.28),
+                      Color(0xFF8B5CF6).withValues(alpha: 0.28),
 
                       Colors.transparent,
                     ],
@@ -1006,7 +1006,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       height: 55,
       width: 1,
-      color: Colors.white.withOpacity(0.12),
+      color: Colors.white.withValues(alpha: 0.12),
     );
   }
 
@@ -1036,16 +1036,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           end: Alignment.bottomRight,
 
-          colors: [color.withOpacity(0.10), Colors.white],
+          colors: [color.withValues(alpha: 0.10), Colors.white],
         ),
 
         borderRadius: BorderRadius.circular(24),
 
-        border: Border.all(color: color.withOpacity(0.08)),
+        border: Border.all(color: color.withValues(alpha: 0.08)),
 
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.08),
+            color: color.withValues(alpha: 0.08),
 
             blurRadius: 16,
 
@@ -1067,7 +1067,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 width: 52,
 
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.14),
+                  color: color.withValues(alpha: 0.14),
 
                   borderRadius: BorderRadius.circular(18),
                 ),
@@ -1150,7 +1150,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               minHeight: 10,
 
-              backgroundColor: color.withOpacity(0.10),
+              backgroundColor: color.withValues(alpha: 0.10),
 
               valueColor: AlwaysStoppedAnimation(color),
             ),
@@ -1204,7 +1204,7 @@ class SavingsMeter extends StatelessWidget {
 
             strokeWidth: 10,
 
-            backgroundColor: Colors.white.withOpacity(0.12),
+            backgroundColor: Colors.white.withValues(alpha: 0.12),
 
             valueColor: AlwaysStoppedAnimation(meterColor),
           ),

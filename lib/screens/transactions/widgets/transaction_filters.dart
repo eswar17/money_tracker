@@ -5,7 +5,6 @@ import 'package:money_tracker/services/workspace/workspace_context.dart';
 import '../../../constants/app_strings.dart';
 import '../../../constants/firestore_collections.dart';
 import '../../../theme/app_colors.dart';
-import '../../../theme/app_spacing.dart';
 import '../../../theme/app_text_styles.dart';
 
 class TransactionFilters extends StatelessWidget {

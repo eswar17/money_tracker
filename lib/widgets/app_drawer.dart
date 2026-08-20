@@ -7,6 +7,7 @@ import '../screens/expense_limits/expense_limits_screen.dart';
 import '../screens/monthly_dashboard/monthly_dashboard_screen.dart';
 import '../screens/category_analysis/category_analysis_screen.dart';
 import '../screens/auth/workspace_setup_screen.dart';
+import '../screens/accounts/accounts_screen.dart';
 import '../core/services/auth_service.dart';
 import '../services/auth/workspace_service.dart';
 
@@ -292,6 +293,23 @@ class AppDrawer extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const LoansScreen()),
+                      );
+                    },
+                  ),
+
+                  _drawerTile(
+                    context,
+                    icon: Icons.pie_chart_rounded,
+                    iconColor: const Color(0xFF8B5CF6),
+                    title: AppStrings.accountBalance,
+                    onTap: () {
+                      Navigator.pop(context);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AccountsScreen(),
+                        ),
                       );
                     },
                   ),

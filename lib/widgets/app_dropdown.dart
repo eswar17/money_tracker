@@ -25,7 +25,7 @@ class AppDropdown<T> extends StatelessWidget {
         border: Border.all(color: AppColors.border),
       ),
       child: DropdownButtonFormField<T>(
-        value: value,
+        initialValue: value,
         items: items,
         onChanged: onChanged,
         decoration: InputDecoration(

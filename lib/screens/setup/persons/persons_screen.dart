@@ -245,7 +245,7 @@ class _PersonsScreenState extends State<PersonsScreen> {
                         Switch(
                           value: visible,
 
-                          activeColor: const Color(0xFF16A34A),
+                          activeThumbColor: const Color(0xFF16A34A),
 
                           onChanged: (value) async {
                             final updatedPerson = SetupItemModel(

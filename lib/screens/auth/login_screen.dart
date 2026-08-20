@@ -38,9 +38,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 260,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF4F46E5).withOpacity(0.18),
+                  color: const Color(0xFF4F46E5).withValues(alpha: 0.18),
                 ),
               ),
             ),
@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 220,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF10B981).withOpacity(0.15),
+                  color: const Color(0xFF10B981).withValues(alpha: 0.15),
                 ),
               ),
             ),
@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         'Track expenses, grow savings and manage family finances together.',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.65),
+                          color: Colors.white.withValues(alpha: 0.65),
                           fontSize: 15,
                           height: 1.6,
                         ),
@@ -187,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.white.withOpacity(0.08),
+                            color: Colors.white.withValues(alpha: 0.08),
                             blurRadius: 30,
                           ),
                         ],
@@ -233,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       'Private • Secure • Family Ready',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.4),
+                        color: Colors.white.withValues(alpha: 0.4),
                         fontSize: 12,
                       ),
                     ),

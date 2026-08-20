@@ -123,7 +123,7 @@ class _WorkspaceSetupScreenState extends State<WorkspaceSetupScreen> {
                 height: 260,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF4F46E5).withOpacity(0.18),
+                  color: const Color(0xFF4F46E5).withValues(alpha: 0.18),
                 ),
               ),
             ),
@@ -135,7 +135,7 @@ class _WorkspaceSetupScreenState extends State<WorkspaceSetupScreen> {
                 height: 220,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF10B981).withOpacity(0.12),
+                  color: const Color(0xFF10B981).withValues(alpha: 0.12),
                 ),
               ),
             ),
@@ -167,7 +167,7 @@ class _WorkspaceSetupScreenState extends State<WorkspaceSetupScreen> {
 
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
+                            color: Colors.white.withValues(alpha: 0.05),
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
@@ -188,7 +188,7 @@ class _WorkspaceSetupScreenState extends State<WorkspaceSetupScreen> {
                     Text(
                       '👋 Hi ${user?.displayName?.split(' ').first ?? ''},',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -211,7 +211,7 @@ class _WorkspaceSetupScreenState extends State<WorkspaceSetupScreen> {
                     Text(
                       'Manage finances together in a shared workspace.',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.65),
+                        color: Colors.white.withValues(alpha: 0.65),
                         fontSize: 14,
                         height: 1.6,
                       ),
@@ -240,7 +240,7 @@ class _WorkspaceSetupScreenState extends State<WorkspaceSetupScreen> {
                                   vertical: 5,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.green.withOpacity(0.15),
+                                  color: Colors.green.withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: const Text(
@@ -259,7 +259,7 @@ class _WorkspaceSetupScreenState extends State<WorkspaceSetupScreen> {
                           Text(
                             'Start a shared finance space.',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.6),
+                              color: Colors.white.withValues(alpha: 0.6),
                             ),
                           ),
 
@@ -291,7 +291,7 @@ class _WorkspaceSetupScreenState extends State<WorkspaceSetupScreen> {
                         children: [
                           Expanded(
                             child: Divider(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha: 0.1),
                             ),
                           ),
                           Padding(
@@ -299,13 +299,13 @@ class _WorkspaceSetupScreenState extends State<WorkspaceSetupScreen> {
                             child: Text(
                               'OR',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.5),
+                                color: Colors.white.withValues(alpha: 0.5),
                               ),
                             ),
                           ),
                           Expanded(
                             child: Divider(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha: 0.1),
                             ),
                           ),
                         ],
@@ -330,7 +330,7 @@ class _WorkspaceSetupScreenState extends State<WorkspaceSetupScreen> {
                           Text(
                             'Already have an invite code?',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.6),
+                              color: Colors.white.withValues(alpha: 0.6),
                             ),
                           ),
 
@@ -377,9 +377,9 @@ class _WorkspaceSetupScreenState extends State<WorkspaceSetupScreen> {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: child,
     );
@@ -388,16 +388,16 @@ class _WorkspaceSetupScreenState extends State<WorkspaceSetupScreen> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: Colors.white.withOpacity(0.35)),
+      hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.35)),
       filled: true,
-      fillColor: Colors.white.withOpacity(0.04),
+      fillColor: Colors.white.withValues(alpha: 0.04),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
       ),
       focusedBorder: const OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(18)),

@@ -218,20 +218,20 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
           Positioned(
             top: -120,
             left: -80,
-            child: glowCircle(size: 260, color: Colors.blue.withOpacity(0.16)),
+            child: glowCircle(size: 260, color: Colors.blue.withValues(alpha: 0.16)),
           ),
           Positioned(
             top: 220,
             right: -100,
             child: glowCircle(
               size: 240,
-              color: Colors.purple.withOpacity(0.14),
+              color: Colors.purple.withValues(alpha: 0.14),
             ),
           ),
           Positioned(
             bottom: -100,
             left: -60,
-            child: glowCircle(size: 220, color: Colors.cyan.withOpacity(0.10)),
+            child: glowCircle(size: 220, color: Colors.cyan.withValues(alpha: 0.10)),
           ),
           // MAIN CONTENT
           SafeArea(
@@ -249,10 +249,10 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                         height: 26,
                         width: 26,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
+                          color: Colors.white.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.06),
+                            color: Colors.white.withValues(alpha: 0.06),
                           ),
                         ),
                         child: InkWell(
@@ -359,10 +359,10 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.05),
+                              color: Colors.white.withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.08),
+                                color: Colors.white.withValues(alpha: 0.08),
                               ),
                             ),
                             child: Row(
@@ -370,7 +370,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                                 Icon(
                                   Icons.person_outline_rounded,
                                   size: 18,
-                                  color: Colors.white.withOpacity(0.7),
+                                  color: Colors.white.withValues(alpha: 0.7),
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
@@ -383,7 +383,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                                         'Person',
                                         style: TextStyle(
                                           fontSize: 10,
-                                          color: Colors.white.withOpacity(0.55),
+                                          color: Colors.white.withValues(alpha: 0.55),
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
@@ -394,7 +394,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 13,
-                                          color: Colors.white.withOpacity(0.92),
+                                          color: Colors.white.withValues(alpha: 0.92),
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -404,7 +404,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                                 Icon(
                                   Icons.keyboard_arrow_down_rounded,
                                   size: 18,
-                                  color: Colors.white.withOpacity(0.65),
+                                  color: Colors.white.withValues(alpha: 0.65),
                                 ),
                               ],
                             ),
@@ -482,7 +482,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                       Text(
                         'Category Overview',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.95),
+                          color: Colors.white.withValues(alpha: 0.95),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -504,10 +504,10 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.05),
+                              color: Colors.white.withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.08),
+                                color: Colors.white.withValues(alpha: 0.08),
                               ),
                             ),
                             child: Row(
@@ -516,7 +516,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                                 Text(
                                   'Sort: $selectedSort',
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.75),
+                                    color: Colors.white.withValues(alpha: 0.75),
                                     fontSize: 10,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -524,7 +524,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                                 const SizedBox(width: 5),
                                 Icon(
                                   Icons.keyboard_arrow_down_rounded,
-                                  color: Colors.white.withOpacity(0.65),
+                                  color: Colors.white.withValues(alpha: 0.65),
                                   size: 16,
                                 ),
                               ],
@@ -581,7 +581,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                               color: const Color(0xFF1C2433),
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.08),
+                                color: Colors.white.withValues(alpha: 0.08),
                               ),
                             ),
                             scrollbarTheme: ScrollbarThemeData(
@@ -593,7 +593,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                             height: 42,
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             overlayColor: WidgetStateProperty.all(
-                              Colors.white.withOpacity(0.05),
+                              Colors.white.withValues(alpha: 0.05),
                             ),
                           ),
                           style: const TextStyle(
@@ -658,10 +658,10 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.04),
+                          color: Colors.white.withValues(alpha: 0.04),
                           borderRadius: BorderRadius.circular(30),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.06),
+                            color: Colors.white.withValues(alpha: 0.06),
                           ),
                         ),
                         child: Row(
@@ -672,7 +672,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                                   ? 'Hide Categories'
                                   : 'View All Categories (${categories.length})',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.82),
+                                color: Colors.white.withValues(alpha: 0.82),
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -682,7 +682,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                               showAllCategoryCards
                                   ? Icons.keyboard_arrow_up_rounded
                                   : Icons.keyboard_arrow_down_rounded,
-                              color: Colors.white.withOpacity(0.72),
+                              color: Colors.white.withValues(alpha: 0.72),
                               size: 16,
                             ),
                           ],
@@ -704,17 +704,17 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              Colors.white.withOpacity(0.07),
-                              Colors.white.withOpacity(0.03),
+                              Colors.white.withValues(alpha: 0.07),
+                              Colors.white.withValues(alpha: 0.03),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(11),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.08),
+                            color: Colors.white.withValues(alpha: 0.08),
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.18),
+                              color: Colors.black.withValues(alpha: 0.18),
                               blurRadius: 28,
                               offset: const Offset(0, 14),
                             ),
@@ -793,17 +793,17 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              Colors.white.withOpacity(0.07),
-                              Colors.white.withOpacity(0.03),
+                              Colors.white.withValues(alpha: 0.07),
+                              Colors.white.withValues(alpha: 0.03),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(11),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.08),
+                            color: Colors.white.withValues(alpha: 0.08),
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.18),
+                              color: Colors.black.withValues(alpha: 0.18),
                               blurRadius: 28,
                               offset: const Offset(0, 14),
                             ),
@@ -887,7 +887,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
               shape: BoxShape.circle,
               color: color,
               boxShadow: [
-                BoxShadow(color: color.withOpacity(0.7), blurRadius: 12),
+                BoxShadow(color: color.withValues(alpha: 0.7), blurRadius: 12),
               ],
             ),
           ),
@@ -909,7 +909,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                 Text(
                   description,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.62),
+                    color: Colors.white.withValues(alpha: 0.62),
                     fontSize: 11,
                   ),
                 ),
@@ -974,7 +974,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
             child: RichText(
               text: TextSpan(
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.82),
+                  color: Colors.white.withValues(alpha: 0.82),
                   fontSize: 11,
                   // height: 1.6,
                 ),
@@ -1001,7 +1001,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
 
   // DIVIDER
   Widget divider() {
-    return Divider(color: Colors.white.withOpacity(0.08), thickness: 1);
+    return Divider(color: Colors.white.withValues(alpha: 0.08), thickness: 1);
   }
 
   // ACTION BUTTON
@@ -1010,9 +1010,9 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
       height: 26,
       width: 26,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Icon(icon, color: Colors.white, size: 18),
     );
@@ -1028,9 +1028,9 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
       height: 55,
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
+        color: Colors.white.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1038,14 +1038,14 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
         children: [
           Row(
             children: [
-              Icon(icon, size: 14, color: Colors.white.withOpacity(0.7)),
+              Icon(icon, size: 14, color: Colors.white.withValues(alpha: 0.7)),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   title,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                     fontSize: 10,
                     fontWeight: FontWeight.w400,
                   ),
@@ -1088,9 +1088,9 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [color.withOpacity(0.26), color.withOpacity(0.06)],
+          colors: [color.withValues(alpha: 0.26), color.withValues(alpha: 0.06)],
         ),
-        border: Border.all(color: color.withOpacity(0.35)),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Stack(
         children: [
@@ -1105,7 +1105,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.18),
+                    color: color.withValues(alpha: 0.18),
                     blurRadius: 45,
                     spreadRadius: 4,
                   ),
@@ -1122,7 +1122,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                 width: 24,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color.withOpacity(0.18),
+                  color: color.withValues(alpha: 0.18),
                 ),
                 child: Icon(icon, color: Colors.white, size: 18),
               ),
@@ -1133,7 +1133,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.78),
+                  color: Colors.white.withValues(alpha: 0.78),
                   fontSize: 11,
                 ),
               ),
@@ -1158,7 +1158,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.65),
+                  color: Colors.white.withValues(alpha: 0.65),
                   fontSize: 10,
                 ),
               ),
@@ -1169,7 +1169,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.65),
+                  color: Colors.white.withValues(alpha: 0.65),
                   fontSize: 10,
                 ),
               ),
@@ -1247,10 +1247,10 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
           end: Alignment.bottomRight,
           colors: [const Color(0xFF101A35), const Color(0xFF0A1229)],
         ),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.18),
+            color: Colors.black.withValues(alpha: 0.18),
             blurRadius: 24,
             offset: const Offset(0, 10),
           ),
@@ -1265,7 +1265,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
               Text(
                 'Spending Distribution',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.95),
+                  color: Colors.white.withValues(alpha: 0.95),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -1283,7 +1283,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -1292,7 +1292,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                       Text(
                         showAllCategories ? 'Show Top 5' : 'All Categories',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.72),
+                          color: Colors.white.withValues(alpha: 0.72),
                           fontSize: 10,
                         ),
                       ),
@@ -1301,7 +1301,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                         showAllCategories
                             ? Icons.expand_less_rounded
                             : Icons.chevron_right_rounded,
-                        color: Colors.white.withOpacity(0.6),
+                        color: Colors.white.withValues(alpha: 0.6),
                         size: 14,
                       ),
                     ],
@@ -1383,7 +1383,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                             TextSpan(
                               text: 'Total: ',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.55),
+                                color: Colors.white.withValues(alpha: 0.55),
                                 fontSize: 10,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -1431,7 +1431,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
           color: color,
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.8),
+              color: color.withValues(alpha: 0.8),
               blurRadius: 10,
               spreadRadius: 2,
             ),
@@ -1458,7 +1458,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
               title,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.82),
+                color: Colors.white.withValues(alpha: 0.82),
                 fontSize: 10.5,
               ),
             ),
@@ -1466,7 +1466,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
           Text(
             amount,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.68),
+              color: Colors.white.withValues(alpha: 0.68),
               fontSize: 10,
             ),
           ),
@@ -1510,10 +1510,10 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [color.withOpacity(0.22), const Color(0xFF111827)],
+          colors: [color.withValues(alpha: 0.22), const Color(0xFF111827)],
         ),
-        border: Border.all(color: color.withOpacity(0.28)),
-        boxShadow: [BoxShadow(color: color.withOpacity(0.08), blurRadius: 20)],
+        border: Border.all(color: color.withValues(alpha: 0.28)),
+        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.08), blurRadius: 20)],
       ),
       child: Column(
         children: [
@@ -1527,7 +1527,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                 width: 27,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color.withOpacity(0.18),
+                  color: color.withValues(alpha: 0.18),
                 ),
                 child: Center(
                   child: Text(emoji, style: const TextStyle(fontSize: 14)),
@@ -1561,7 +1561,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
                     Text(
                       '$percentage of total',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.68),
+                        color: Colors.white.withValues(alpha: 0.68),
                         fontSize: 10,
                       ),
                     ),
@@ -1628,7 +1628,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
               gradient: LinearGradient(
                 colors: [
                   Colors.transparent,
-                  color.withOpacity(0.35),
+                  color.withValues(alpha: 0.35),
                   Colors.transparent,
                 ],
               ),
@@ -1670,7 +1670,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
     return Container(
       height: 30,
       width: 1,
-      color: Colors.white.withOpacity(0.08),
+      color: Colors.white.withValues(alpha: 0.08),
     );
   }
 
@@ -1685,7 +1685,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
       children: [
         Text(
           title,
-          style: TextStyle(color: Colors.white.withOpacity(0.58), fontSize: 9),
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.58), fontSize: 9),
         ),
         const SizedBox(height: 2),
         Text(
@@ -1701,7 +1701,7 @@ class _CategoryAnalysisScreenState extends State<CategoryAnalysisScreen> {
           Text(
             subtitle,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.50),
+              color: Colors.white.withValues(alpha: 0.50),
               fontSize: 8,
             ),
           ),

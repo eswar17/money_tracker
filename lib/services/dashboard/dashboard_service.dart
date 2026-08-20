@@ -100,7 +100,11 @@ class DashboardService {
           year < selectedMonth.year ||
           (year == selectedMonth.year && month <= selectedMonth.month);
 
-      if (isBeforeOrEqual) {
+      final paymentMethod = data['paymentMethod'] ?? '';
+
+      final bool isSodexo = paymentMethod.toLowerCase().contains('sodexo');
+
+      if (isBeforeOrEqual && !isSodexo) {
         if (type == 'Income') {
           balanceIncome += amount;
         }

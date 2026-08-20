@@ -33,6 +33,7 @@ class AppEmojiHelper {
     'Gift': '🎁',
     'Gifts': '🎁',
     'Family Support': '👨‍👩‍👧‍👦',
+    'Investments': '🌱',
 
     // Food Details
     'Junk Food': '🍔',
@@ -69,6 +70,8 @@ class AppEmojiHelper {
     'Hygiene': '🧼',
     'Essentials': '🛍️',
     'Maintenance': '🔨',
+    'Home Furnishing': '🛋️',
+    'Appliances': '🔌',
 
     // Bills Details
     'Electricity': '⚡',
@@ -84,6 +87,7 @@ class AppEmojiHelper {
     'Shoes': '👟',
     'Grooming': '✂️',
     'Accessories': '⌚',
+    'Gym': '🏋️',
 
     // Entertainment Details
     'Movies': '🎬',
@@ -120,6 +124,7 @@ class AppEmojiHelper {
 
     // People
     'Bhavya': '👩',
+    'Amrutha': '👩',
     'Annayya': '👨',
     'Pavan': '👨',
     'Latha': '👩',

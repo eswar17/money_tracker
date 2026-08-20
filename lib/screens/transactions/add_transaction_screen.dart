@@ -274,7 +274,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     itemBuilder: (context, index) {
                       final doc = snapshot.docs[index];
 
-                      final data = doc.data() as Map<String, dynamic>;
+                      final data = doc.data();
 
                       return ListTile(
                         leading: Text(

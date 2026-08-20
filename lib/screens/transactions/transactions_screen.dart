@@ -6,6 +6,7 @@ import '../../models/filter_model.dart';
 import '../../models/transaction_model.dart';
 import '../../services/auth/workspace_service.dart';
 import '../../services/transactions/transaction_service.dart';
+import '../../services/pdf/pdf_service.dart';
 import 'add_transaction_screen.dart';
 import './widgets/transaction_summary_card.dart';
 import './widgets/transaction_filters.dart';
@@ -127,6 +128,89 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     });
   }
 
+  void _showExportOptions(
+    List<TransactionModel> transactions,
+    List<TransactionModel> allTransactions,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Export Report',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 25),
+
+                ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: Color(0xffEEF5FF),
+                    child: Icon(Icons.description_outlined, color: Colors.blue),
+                  ),
+                  title: const Text(
+                    'Detailed Transactions',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: const Text('Every transaction with all details'),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    PdfService().exportDetailedReport(
+                      transactions: transactions,
+                      person: selectedPerson,
+                      category: selectedCategory,
+                      payment: selectedPayment,
+                      tag: selectedTag,
+                      startDate: currentFilter.startDate,
+                      endDate: currentFilter.endDate,
+                    );
+                  },
+                ),
+
+                ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: Color(0xffEEF7EE),
+                    child: Icon(Icons.analytics_outlined, color: Colors.green),
+                  ),
+                  title: const Text(
+                    'Grouped Report',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: const Text('Expense analysis with settlements'),
+
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await PdfService().exportGroupedReport(
+                      transactions: transactions,
+                      allTransactions: allTransactions,
+                      person: selectedPerson,
+                      category: selectedCategory,
+                      payment: selectedPayment,
+                      tag: selectedTag,
+                      startDate: currentFilter.startDate,
+                      endDate: currentFilter.endDate,
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   List<TransactionModel> applyLocalFilters(
     List<TransactionModel> transactions,
   ) {
@@ -217,6 +301,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         ),
         centerTitle: true,
         title: Text(AppStrings.allTransactions, style: AppTextStyles.heading3),
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.picture_as_pdf_rounded, color: Colors.red),
+        //     onPressed: () {
+        //       _showExportOptions(transactions);
+        //     },
+        //   ),
+        // ],
       ),
       body: workspaceId == null
           ? const Center(child: CircularProgressIndicator())
@@ -245,8 +337,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 // }
                 return ValueListenableBuilder(
                   valueListenable: searchNotifier,
-                  builder: (context, _, __) {
-                    final transactions = applyLocalFilters(snapshot.data!);
+                  builder: (context, _, _) {
+                    final allTransactions = snapshot.data!;
+                    final transactions = applyLocalFilters(allTransactions);
                     double income = 0;
                     double expense = 0;
                     double transfer = 0;
@@ -387,7 +480,37 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                             ],
                           ),
                         ),
+                        const SizedBox(height: 12),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: () {
+                                _showExportOptions(
+                                  transactions,
+                                  allTransactions,
+                                );
+                              },
+                              icon: const Icon(Icons.picture_as_pdf_rounded),
+                              label: const Text('Export Report'),
+                            ),
+                          ),
+                        ),
+
                         const SizedBox(height: 8),
+
                         Expanded(
                           child: transactions.isEmpty
                               ? const Center(

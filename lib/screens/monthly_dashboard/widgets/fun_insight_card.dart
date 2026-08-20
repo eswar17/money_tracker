@@ -39,11 +39,11 @@ class FunInsightCard extends StatelessWidget {
 
         borderRadius: BorderRadius.circular(24),
 
-        border: Border.all(color: primaryColor.withOpacity(0.10)),
+        border: Border.all(color: primaryColor.withValues(alpha: 0.10)),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
 
             blurRadius: 12,
 
@@ -65,7 +65,7 @@ class FunInsightCard extends StatelessWidget {
             width: 50,
 
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.85),
+              color: Colors.white.withValues(alpha: 0.85),
 
               borderRadius: BorderRadius.circular(16),
             ),
@@ -107,7 +107,7 @@ class FunInsightCard extends StatelessWidget {
                       ),
 
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.75),
+                        color: Colors.white.withValues(alpha: 0.75),
 
                         borderRadius: BorderRadius.circular(12),
                       ),

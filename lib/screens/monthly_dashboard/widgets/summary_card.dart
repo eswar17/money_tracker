@@ -32,7 +32,7 @@ class SummaryCard extends StatelessWidget {
 
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withOpacity(0.25),
+            color: Colors.blue.withValues(alpha: 0.25),
 
             blurRadius: 25,
 
@@ -51,7 +51,7 @@ class SummaryCard extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
 
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
 
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -105,7 +105,7 @@ class SummaryCard extends StatelessWidget {
             padding: const EdgeInsets.all(13),
 
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.12),
+              color: Colors.white.withValues(alpha: 0.12),
 
               borderRadius: BorderRadius.circular(18),
             ),

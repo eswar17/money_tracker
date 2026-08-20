@@ -27,6 +27,8 @@ dependencies:
   dropdown_button2: ^2.3.9
   google_sign_in: ^6.2.1
   lottie: ^3.3.3
+  pdf: ^3.11.1
+  printing: ^5.13.4
 
 dev_dependencies:
   flutter_test:
@@ -43,6 +45,13 @@ flutter:
     - assets/lottie/login_animation.json
     - assets/images/bank_building.png
     - assets/icon/app_iconn.png
+
+  fonts:
+    - family: NotoSans
+      fonts:
+        - asset: assets/fonts/NotoSans-Regular.ttf
+        - asset: assets/fonts/NotoSans-Bold.ttf
+          weight: 700
 
 flutter_launcher_icons:
   android: true

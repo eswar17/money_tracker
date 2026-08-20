@@ -144,7 +144,7 @@ class MonthlyInsightsSection extends StatelessWidget {
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
 
             blurRadius: 16,
 
@@ -194,7 +194,7 @@ class MonthlyInsightsSection extends StatelessWidget {
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
 
             blurRadius: 16,
 
@@ -252,7 +252,7 @@ class MonthlyInsightsSection extends StatelessWidget {
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
 
             blurRadius: 16,
 
@@ -318,7 +318,7 @@ class MonthlyInsightsSection extends StatelessWidget {
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
 
             blurRadius: 14,
 
@@ -332,7 +332,7 @@ class MonthlyInsightsSection extends StatelessWidget {
 
         children: [
           Text(
-            emoji + " " + title,
+            "$emoji $title",
             style: AppTextStyles.heading3.copyWith(fontSize: 12),
           ),
 

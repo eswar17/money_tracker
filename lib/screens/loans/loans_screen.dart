@@ -251,7 +251,7 @@ class _LoansScreenState extends State<LoansScreen> {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.fromLTRB(24, 24, 16, 24),
-      constraints: const BoxConstraints(minHeight: 180),
+      constraints: const BoxConstraints(minHeight: 160),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(11),
         gradient: const LinearGradient(
@@ -274,11 +274,14 @@ class _LoansScreenState extends State<LoansScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
+                flex: 3,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
                       'Total Outstanding',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 16,
@@ -286,18 +289,22 @@ class _LoansScreenState extends State<LoansScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
-                    Text(
-                      '₹${formatAmount(amount)}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 35,
-                        fontWeight: FontWeight.w800,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '₹${formatAmount(amount)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 35,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
 
                     Text(
                       'Across $loanCount ${loanCount == 1 ? 'Loan' : 'Loans'}',
@@ -310,10 +317,15 @@ class _LoansScreenState extends State<LoansScreen> {
                 ),
               ),
 
-              Image.asset(
-                'assets/images/bank_building.png',
-                height: 130,
-                fit: BoxFit.contain,
+              const SizedBox(width: 8),
+
+              Flexible(
+                flex: 3,
+                child: Image.asset(
+                  'assets/images/bank_building.png',
+                  height: 115,
+                  fit: BoxFit.contain,
+                ),
               ),
             ],
           ),
@@ -624,7 +636,7 @@ class _LoansScreenState extends State<LoansScreen> {
 
                   children: [
                     DropdownButtonFormField<String>(
-                      value: selectedLoanType,
+                      initialValue: selectedLoanType,
 
                       decoration: const InputDecoration(labelText: 'Loan Type'),
 
@@ -654,7 +666,7 @@ class _LoansScreenState extends State<LoansScreen> {
                     const SizedBox(height: 16),
 
                     DropdownButtonFormField<int>(
-                      value: dueDay,
+                      initialValue: dueDay,
 
                       decoration: const InputDecoration(labelText: 'Due Day'),
 

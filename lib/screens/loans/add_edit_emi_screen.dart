@@ -200,7 +200,7 @@ class _AddEditEmiScreenState extends State<AddEditEmiScreen> {
                   );
 
                   return DropdownButtonFormField<String>(
-                    value: selectedDetail,
+                    initialValue: selectedDetail,
 
                     decoration: const InputDecoration(labelText: 'Loan Detail'),
 
@@ -245,7 +245,7 @@ class _AddEditEmiScreenState extends State<AddEditEmiScreen> {
 
             _card(
               child: DropdownButtonFormField<int>(
-                value: dueDay,
+                initialValue: dueDay,
 
                 decoration: const InputDecoration(labelText: 'Due Day'),
 

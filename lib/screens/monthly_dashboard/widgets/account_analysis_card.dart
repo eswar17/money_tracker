@@ -48,7 +48,7 @@ class _AccountAnalysisCardState extends State<AccountAnalysisCard> {
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
 
             blurRadius: 18,
 
@@ -70,7 +70,7 @@ class _AccountAnalysisCardState extends State<AccountAnalysisCard> {
                 padding: const EdgeInsets.all(12),
 
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.12),
+                  color: Colors.blue.withValues(alpha: 0.12),
 
                   borderRadius: BorderRadius.circular(16),
                 ),

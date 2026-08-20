@@ -23,7 +23,7 @@ class TransactionSummaryCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
 
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
 
         borderRadius: BorderRadius.circular(12),
       ),

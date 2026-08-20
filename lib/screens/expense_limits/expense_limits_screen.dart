@@ -106,7 +106,7 @@ class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
                   // CATEGORY
                   // =====================
                   DropdownButtonFormField<String>(
-                    value: selectedCategory,
+                    initialValue: selectedCategory,
 
                     decoration: InputDecoration(
                       labelText: 'Expense Category',
@@ -156,7 +156,7 @@ class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
                   const SizedBox(height: 18),
 
                   DropdownButtonFormField<String>(
-                    value: selectedDetail,
+                    initialValue: selectedDetail,
 
                     decoration: InputDecoration(
                       labelText: 'Detail',
@@ -223,7 +223,7 @@ class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
                   // PERSON
                   // =====================
                   DropdownButtonFormField<String>(
-                    value: selectedPerson,
+                    initialValue: selectedPerson,
 
                     decoration: InputDecoration(
                       labelText: 'Person',
@@ -292,7 +292,7 @@ class _ExpenseLimitsScreenState extends State<ExpenseLimitsScreen> {
                           amountController.text.trim(),
                         );
 
-                        final docId = '${selectedDetailId}_${selectedPersonId}';
+                        final docId = '${selectedDetailId}_$selectedPersonId';
 
                         await firestore
                             .collection('expense_limits')

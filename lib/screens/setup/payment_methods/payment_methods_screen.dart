@@ -342,7 +342,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     final titleController = TextEditingController(text: item?.title ?? '');
 
     final cardTypeController = TextEditingController(
-      text: item != null && item.details.length > 0
+      text: item != null && item.details.isNotEmpty
           ? item.details[0]['name'] ?? ''
           : '',
     );

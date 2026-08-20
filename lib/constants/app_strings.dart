@@ -4,6 +4,7 @@ class AppStrings {
   static const expenseLimits = 'Expense Limits';
   static const monthlyDashboard = 'Monthly Dashboard';
   static const categoryAnalysis = 'Category Analysis';
+  static const accountBalance = 'Account Balance';
   static const emiLoans = 'EMIs & Loans';
   static const goals = 'Goals';
   static const appName = 'Money Tracker';

@@ -3,7 +3,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:money_tracker/helpers/app_emoji_helper.dart';
-import 'package:money_tracker/theme/app_spacing.dart';
 
 import '../../../constants/app_strings.dart';
 import '../../../models/setup_item_model.dart';

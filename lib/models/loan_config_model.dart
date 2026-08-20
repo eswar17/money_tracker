@@ -78,5 +78,7 @@ class LoanConfigModel {
     };
   }
 
-  Object? operator [](String other) {}
+  Object? operator [](String other) {
+    return null;
+  }
 }

@@ -39,7 +39,7 @@ class _CategoryBreakdownCardState extends State<CategoryBreakdownCard> {
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
 
             blurRadius: 18,
 
@@ -61,7 +61,7 @@ class _CategoryBreakdownCardState extends State<CategoryBreakdownCard> {
                 padding: const EdgeInsets.all(12),
 
                 decoration: BoxDecoration(
-                  color: Colors.purple.withOpacity(0.12),
+                  color: Colors.purple.withValues(alpha: 0.12),
 
                   borderRadius: BorderRadius.circular(16),
                 ),
